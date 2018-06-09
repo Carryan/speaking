@@ -1,0 +1,685 @@
+* { margin: 0; padding: 0; outline: 0; box-sizing: border-box;}
+body { font-family: 'Microsoft YaHei'; font-size: 14px; line-height: 1;}
+ul, ol { list-style:none;}
+table { border-collapse: collapse; border-spacing: 0;}
+input, select { vertical-align: middle;}
+
+a {
+    text-decoration: none;
+}
+[hidden], .hide { 
+    display: none;
+}
+[v-cloak] {
+  display: none;
+}
+
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.fl {
+    float: left;
+}
+.fr {
+    float: right;
+}
+.text-center {
+    text-align: center;
+}
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sp-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 40px;
+    height: 35px;
+    background-image: url('../images/icon.png');
+    background-repeat: no-repeat;
+}
+.table-triped tbody tr:nth-child(even) {
+    background-color: #F2F2F2;
+}
+
+/* header */
+.header {
+    background-color: #fff;
+    border-top: 3px solid #20A0FF;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+    position: relative;
+    z-index: 9;
+}
+.header .logo {
+    padding: 15px 60px 15px 25px;
+}
+.header .logo >a {
+    display: inline-block;
+}
+.header .menu li {
+    display: inline-block;
+    padding: 28px 18px;
+}
+.header .menu li a {
+    color: #333;
+    font-size: 20px;
+}
+.header .menu li.active a {
+    color: #20A0FF;
+}
+.header .login {
+    padding: 30px 30px 0 0;
+}
+.header .login .login-btn {
+    padding: 4px 10px;
+    border: 1px solid #20A0FF;
+    border-radius: 15px;
+    color: #20A0FF;
+    vertical-align: middle;
+}
+
+/* footer */
+.footer {
+    padding: 40px 0;
+    background-color: #444546;
+}
+.footer p {
+    color: #fff;
+    text-align: center;
+    line-height: 2;
+}
+
+#speaking_app {
+    background: linear-gradient(to bottom, #d4f4fe, #d4f4fe 750px, #6FBE44 100px, #6FBE44 );
+}
+.speaking-container {
+    min-height: 800px;
+    /* background-color: #D4F4FE; */
+    background-image: url('../images/bg-img.png');
+    background-size: 100% auto;
+    background-position: 0 550px;
+    background-repeat: no-repeat;
+    position: relative;
+}
+.speaking-container .clouds {
+    position: absolute;
+    width: 100%;
+    height: 480px;
+    left: 0;
+    top: 50px;
+    background-image: url('../images/img-cloud1.png');
+    background-position: 0 0;
+    background-repeat: repeat-x;
+    animation: clouds 55s linear infinite;
+}
+@keyframes clouds {
+    0% {background-position-x: 0;}
+    100% {background-position-x: -1068px;}
+}
+
+.speaking-container .position {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+    color: #666;
+}
+.speaking-container .position a {
+    color: #666;
+}
+.speaking-container .position a + a {
+    margin-left: 22px;
+    position: relative;
+}
+.speaking-container .position a + a:before {
+    content: "<";
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: -16px;
+}
+
+.speaking-container .speaking-content {
+    width: 1200px;
+    margin: 0 auto;
+    padding-top: 35px;
+    padding-bottom: 50px;
+    position: relative;
+    z-index: 2;
+} 
+.speaking-content .nav-bar {
+    text-align: center;
+    margin-bottom: 22px;
+}
+.speaking-content .nav-bar > div {
+    display: inline-block;
+    padding: 12px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    user-select: none;
+}
+.speaking-content .nav-bar > div + div {
+    margin-left: 22px;
+}
+.speaking-content .nav-bar > div > span {
+    width: 130px;
+    font-size: 20px;
+    color: #fff;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+    display: inline-block;
+    vertical-align: middle;
+    text-align: right;
+}
+.speaking-content .nav-bar > div.active > span {
+    width: 155px;
+}
+.speaking-content .nav-bar > div > span > small {
+    font-size: 12px;
+    opacity: .5;
+}
+.speaking-content .nav-bar > div.word {
+    background-color: #3DADEF;
+}
+.speaking-content .nav-bar > div.word > .sp-icon {
+    background-position: 0 -170px;
+}
+.speaking-content .nav-bar > div.sentence {
+    background-color: #87E082;
+}
+.speaking-content .nav-bar > div.sentence > .sp-icon {
+    background-position: -56px -168px;
+}
+.speaking-content .nav-bar > div.record {
+    background-color: #FCB040;
+}
+.speaking-content .nav-bar > div.record > .sp-icon {
+    background-position: -112px -172px;
+}
+.speaking-content .nav-bar > div.err {
+    background-color: #FF4E70;
+}
+.speaking-content .nav-bar > div.err > .sp-icon {
+    background-position: -166px -171px;
+}
+
+.speaking-main .left-menu {
+    width: 277px;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+    border-radius: 6px;
+    position: relative;
+    padding: 85px 10px 35px;
+}
+.speaking-main .left-menu .book {
+    background-color: #E9E9E9;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    z-index: 4;
+}
+.speaking-main .left-menu .book.open {
+    background-color: #fff;
+    border-color: #D2D2D2;
+    border-radius: 6px;
+    left: -1px;
+    right: -1px;
+}
+.speaking-main .left-menu .book .title {
+    margin: 20px -1px;
+    padding-left: 14px;
+    border-left: 6px solid #20A0FF;
+    line-height: 24px;
+}
+.speaking-main .left-menu .book .title > span {
+    font-size: 18px;
+    color: #333;
+    display: inline-block;
+    width: 176px;
+    margin-right: 8px;
+}
+.speaking-main .left-menu .book .open-btn {
+    color: #20A0FF;
+}
+.speaking-main .left-menu .book.open .open-btn {
+    display: none;
+}
+.speaking-main .left-menu .book .items-wrap {
+    padding: 0 20px 23px;
+    display: none;
+}
+.speaking-main .left-menu .book.open .items-wrap {
+    display: block;
+}
+.speaking-main .left-menu .book .items-wrap > label {
+    margin-top: 7px;
+    display: inline-block;
+}
+.speaking-main .left-menu .book .items-wrap .item {
+    display: inline-block;
+    width: 185px;
+    vertical-align: top;
+    margin-right: -10px;
+}
+.speaking-main .left-menu .book .items-wrap .item label {
+    margin-right: 10px;
+    word-break: keep-all;
+    margin-bottom: 15px;
+    display: inline-block;
+    padding: 7px 11px;
+    cursor: pointer;
+}
+.speaking-main .left-menu .book .items-wrap .item label.active {
+    color: #fff;
+    background-color: #20A0FF;
+    border-radius: 6px;
+}
+.speaking-main .left-menu .book .items-wrap [type="radio"] {
+    display: none;
+}
+.speaking-main .left-menu .book .items-wrap .item select {
+    width: 111px;
+    height: 28px;
+    line-height: 28px;
+    padding: 4px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border-color: #C5C5C5;
+    color: #666;
+}
+.speaking-main .left-menu .book .bottom-side {
+    background-color: #F1F1F1;
+    text-align: center;
+    padding: 15px;
+    border-radius: 0 0 6px 6px;
+    display: none;
+}
+.speaking-main .left-menu .book.open .bottom-side {
+    display: block;
+}
+.speaking-main .left-menu .book .bottom-side button {
+    padding: 6px 16px;
+    background-color: #20A0FF;
+    color: #fff;
+    border: 0;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+/* 树形菜单 */
+.v-tree .folder-icon {
+    color: #999;
+    border: 1px solid #999;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    line-height: 14px;
+    border-radius: 8px;
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    background-color: #fff;
+    cursor: pointer;
+    user-select: none;
+}
+.v-tree .item {
+    margin-bottom: 10px;
+    padding: 4px;
+    display: inline-block;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+.v-tree .item.active {
+    color: #20A0FF;
+    background-color: #f2f2f2;
+}
+.v-tree li {
+    position: relative;
+    margin-left: 28px;
+}
+.v-tree li:before {
+    position: absolute;
+    display: block;
+    width: auto;
+    height: auto;
+    content: ' ';
+    background: 0 0;
+    border: none;
+    border-left: 1px dashed #666;
+}
+.v-tree li:after {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    content: ' ';
+    border-top: 1px dashed #666;
+}
+.v-tree li:before {
+    top: -8px;
+    left: -19px;
+    bottom: 9px;
+}
+.v-tree > li:last-child:before {
+    height: 36px;
+}
+.v-tree .children > li:last-child:before {
+    bottom: 21px;
+}
+.v-tree .children > li:after {
+    top: 10px;
+    left: -18px;
+    width: 15px;
+}
+.v-tree li.hasFolder:after {
+    display: none;
+}
+
+/* main */
+.main-box {
+    border: 20px solid #AFC152;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+    width: 1200px;
+    min-height: 600px;
+    background-color: #F1FDFF;
+    border-radius: 5px;
+}
+.left-menu + .main-box {
+    width: 902px;
+}
+.main-box > div {
+    min-height: 560px;
+}
+
+.speaking-start .top {
+    text-align: center;
+    font-size: 20px;
+    color: #222222;
+    padding-top: 16px;
+    margin-bottom: 50px;
+}
+.speaking-start .top .title {
+    margin-bottom: 28px;
+}
+.speaking-start .top .progress > span {
+    padding: 5px 32px;
+    background-color: #E4E4E4;
+    border-radius: 18px;
+}
+.speaking-start .middle {
+    padding: 50px 182px 65px;
+    min-height: 300px;
+    position: relative;
+}
+.speaking-start .middle .word {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 22px;
+}
+.speaking-start .middle .sentence, .speaking-start .middle .translate {
+    font-size: 20px;
+    line-height: 1.5;
+}
+.speaking-start .middle .sentence {
+    color: #333333;
+    margin-bottom: 10px;
+}
+.speaking-start .middle .translate {
+    color: #666666;
+}
+.speaking-start .middle .pronunciation {
+    text-align: center;
+    font-size: 20px;
+}
+.speaking-start .middle .pronunciation > span {
+    color: red;
+}
+.speaking-start .middle .prev-btn, .speaking-start .middle .next-btn {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    top: 50%;
+    margin-top: -27px;
+}
+.speaking-start .middle .prev-btn {
+    left: 30px;
+    background-position: 0 0;
+}
+.speaking-start .middle .next-btn {
+    background-position: -130px 0;
+    right: 30px;
+}
+.speaking-start .middle .grade {
+    position: absolute;
+    background: url('../images/grade-bg.png') center/100% 100% no-repeat;
+    width: 110px;
+    height: 110px;
+    top: -70px;
+    right: 100px;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    line-height: 110px;
+}
+.speaking-start .middle .grade > span {
+    font-size: 44px;
+}
+.speaking-start .bottom {
+    text-align: center;
+    position: relative;
+}
+.speaking-start .bottom > div {
+    margin-bottom: 12px;
+}
+.speaking-start .bottom > div > a, .speaking-start .bottom > div > span {
+    display: inline-block;
+    vertical-align: middle;
+    width: 55px;
+    margin: 0 8px;
+    color: #333;
+}
+.speaking-start .bottom > div > a:nth-child(2), .speaking-start .bottom > div > span:nth-child(2) {
+    width: 80px;
+}
+.speaking-start .bottom .origin-btn {
+    background-position: -115px -86px;
+    height: 55px;
+}
+.speaking-start .bottom .start-btn {
+    background-position: -245px -86px;
+    height: 80px;
+}
+.speaking-start .bottom .mine-btn {
+    background-position: -180px -86px;
+    height: 55px;
+}
+.speaking-start .bottom .submit-btn {
+    position: absolute;
+    background-color: #FF9524;
+    padding: 14px 28px;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 22px;
+    left: 50%;
+    margin-left: -44px;
+    top: -58px;
+}
+.speaking-start .bottom .star-box {
+    position: absolute;
+    top: 0;
+    right: 50px;
+}
+.star-box .star-item {
+    margin-bottom: 10px;
+}
+.star-box .star {
+    display: inline-block;
+    height: 18px;
+    background: url('../images/icon.png') 0 -89px no-repeat;
+    width: 100px;
+    vertical-align: text-bottom;
+    margin-left: 10px;
+    position: relative;
+}
+.star-box .star-cover {
+    display: inline-block;
+    height: 18px;
+    background: url('../images/icon.png') 0 -113px no-repeat;
+    width: 0%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.speaking-record {
+    background-color: #fff;
+}
+.record-table {
+    width: 100%;
+    text-align: center;
+    color: #333;
+}
+.record-table td {
+    padding: 12px 10px;
+}
+.record-table thead {
+    background-color: #D8D8D8;
+}
+.record-table td.title {
+    font-size: 16px;
+}
+.record-table td.progress {
+    color: #FF0000;
+}
+.record-table .action a {
+    color: #20A0FF;
+}
+
+.speaking-result {
+    color: #333;
+    background-color: #fff;
+}
+.speaking-result > .title {
+    text-align: center;
+    font-size: 20px;
+    padding: 15px 15px 18px;
+}
+.speaking-result .list {
+    margin-bottom: 45px;
+    width: 100%;
+    text-align: center;
+}
+.speaking-result .list thead {
+    background-color: #D8D8D8;
+}
+.speaking-result .list thead td {
+    padding: 10px 0;
+}
+.speaking-result .sp-icon {
+    width: 45px;
+    height: 45px;
+}
+.speaking-result .origin-btn {
+    background-position: -311px -3px;
+}
+.speaking-result .start-btn {
+    background-position: -258px -3px;
+}
+.speaking-result .mine-btn {
+    background-position: -365px -3px;
+}
+.speaking-result .list .grade {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    line-height: 43px;
+    border-radius: 50%;
+    color: #FF0000;
+    font-size: 20px;
+    border: 1px solid #FF0000;
+}
+.speaking-result .list tbody td {
+    border-bottom: 1px solid #e6e6e6;
+    padding: 20px 10px;
+}
+.speaking-result .list thead td:nth-child(4) {
+    min-width: 100px;
+}
+.speaking-result .list thead td:nth-child(5) {
+    min-width: 530px;
+}
+.speaking-result .list .detail > div {
+    display: inline-block;
+    vertical-align: middle;
+}
+.speaking-result .list .detail .sentence {
+    width: 330px;
+    line-height: 1.5;
+    font-size: 16px;
+    margin-right: 30px;
+    text-align: left;
+}
+.speaking-result .bottom {
+    padding: 25px;
+    text-align: center;
+    background-color: #F4F4F4;
+}
+.speaking-result .bottom a {
+    display: inline-block;
+    width: 74px;
+    height: 39px;
+    line-height: 39px;
+    border-radius: 6px;
+    color: #fff;
+    text-align: center;
+}
+.speaking-result .bottom a.page-btn {
+    background-color: #93B658;
+}
+.speaking-result .bottom a.return-btn {
+    background-color: #52C4E9;
+}
+.speaking-result .bottom a + a {
+    margin-left: 7px;
+}
+
+/* 分页 */
+.paging li {
+    display: inline-block;
+    border: 1px solid #D2D2D2;
+    padding: 5px 8px;
+    border-radius: 4px;
+    user-select: none;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.paging li + li {
+    margin-left: 6px;
+}
+.paging .paging-item--current {
+    color: #fff;
+    background-color: #20A0FF;
+    border-color: transparent;
+}
+
+.speaking-record .paging li {
+    padding: 0;
+    width: 25px;
+    height: 25px;
+    line-height: 23px;
+}
+.speaking-record .paging {
+    text-align: right;
+    padding: 20px 15px;
+}

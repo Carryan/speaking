@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>口语测评</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    
+    <div id="speaking_app">
+        <speaking-header :logo="header.logo" :menu="header.menu" v-cloak></speaking-header>
+
+        <div class="speaking-container">
+            <div class="clouds"></div>
+            <div class="position" v-cloak>当前位置： 
+                <a v-for="(v, i) in position" :href="v.url || 'javacript:;'">{{v.name}}</a>
+            </div>
+
+            <div class="speaking-content" v-cloak>
+                <div class="nav-bar">
+                    <div v-for="(v, i) in nav.navItems" :class="[v.class, {active: v.id==nav.active}]" @click="navClick(v.id, v.compo)">
+                        <i class="sp-icon"></i>
+                        <span>{{v.name}}<br><small>{{v.en}}</small></span>
+                    </div>
+                </div>
+
+                <div class="speaking-main clearfix">
+                    <div v-if="isMenu" class="left-menu fl">
+                        <div class="book" :class="{open: book.isOpen}">
+                            <div class="title">
+                                <span>{{book.bookName}}</span>
+                                <a href="javascript:;" class="open-btn" @click="book.isOpen=true">选择教材</a>
+                            </div>
+                            <div class="items-wrap">
+                                <template v-for="(v, i) in book.bookItems">
+                                    <label>{{v.title}}：</label>
+                                    <div v-if="v.type=='radio'" class="item">
+                                        <label v-for="item in v.items" :class="{active: v.value == item.value}">
+                                            {{item.name}}<input type="radio" :name="v.name" :value="item.value" v-model="v.value">
+                                        </label>
+                                    </div>
+                                    <div v-else-if="v.type=='select'" class="item">
+                                        <select :name="v.name" v-model="v.value">
+                                            <option v-for="item in v.items" :value="item.value">{{item.name}}</option>
+                                        </select>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="bottom-side">
+                                <button @click="getMenu">确定</button>
+                            </div>
+                        </div>
+                        <ul class="unit v-tree" v-if="unit.menu&&unit.menu.length">
+                            <vue-tree v-for="(item, i) in unit.menu"  :key="i"
+                                :model="item" 
+                                :activeid="unit.activeId" 
+                                @node-click="selectUnit">
+                            </vue-tree>
+                        </ul>
+                    </div>
+                    <div class="main-box fr">
+                        <keep-alive>
+                            <component :is="currentComponent" :data="cData"></component>
+                        </keep-alive>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="footer">
+            <p>技术支持：山东金视野教育科技股份有限公司</p>
+            <p>鲁ICP备09042772号-4</p>
+        </div>
+    </div>
+
+<script src="static/js/vue.min.js"></script>
+<script src="static/js/jquery-2.1.1.min.js"></script>
+<script src="static/js/require.js" data-main="static/js/main"></script>
+</body>
+</html>

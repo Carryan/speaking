@@ -1,0 +1,11 @@
+{
+    "state": "ok",
+    "data": {
+        "grade": 88,
+        "star": {
+            "accuracy": 1,
+            "integrity": 2.5,
+            "fluency": 3
+        }
+    }
+}
