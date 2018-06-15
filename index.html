@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,23 +8,35 @@
     <title>口语测评</title>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
+
 <body>
-    
+
     <div id="speaking_app">
+
         <speaking-header :logo="header.logo" :menu="header.menu" v-cloak></speaking-header>
 
         <div class="speaking-container">
             <div class="clouds"></div>
-            <div class="position" v-cloak>当前位置： 
+            <div class="position" v-cloak>当前位置：
                 <a v-for="(v, i) in position" :href="v.url || 'javacript:;'">{{v.name}}</a>
             </div>
 
             <div class="speaking-content" v-cloak>
                 <div class="nav-bar">
-                    <div v-for="(v, i) in nav.navItems" :class="[v.class, {active: v.id==nav.active}]" @click="navClick(v.id, v.compo)">
+                    <!-- <div v-for="(v, i) in nav.navItems" :class="['nav-item', v.class, {'router-link-active': v.id==nav.active}]" @click="navClick(v.id, v.compo)">
                         <i class="sp-icon"></i>
-                        <span>{{v.name}}<br><small>{{v.en}}</small></span>
-                    </div>
+                        <span>{{v.name}}
+                            <br>
+                            <small>{{v.en}}</small>
+                        </span>
+                    </div> -->
+                    <router-link v-for="(v, i) in nav.navItems" :class="['nav-item', v.class]" :to="v.to" @click.native="navClick(v.id)">
+                        <i class="sp-icon"></i>
+                        <span>{{v.name}}
+                            <br>
+                            <small>{{v.en}}</small>
+                        </span>
+                    </router-link>
                 </div>
 
                 <div class="speaking-main clearfix">
@@ -38,7 +51,8 @@
                                     <label>{{v.title}}：</label>
                                     <div v-if="v.type=='radio'" class="item">
                                         <label v-for="item in v.items" :class="{active: v.value == item.value}">
-                                            {{item.name}}<input type="radio" :name="v.name" :value="item.value" v-model="v.value">
+                                            {{item.name}}
+                                            <input type="radio" :name="v.name" :value="item.value" v-model="v.value">
                                         </label>
                                     </div>
                                     <div v-else-if="v.type=='select'" class="item">
@@ -53,21 +67,22 @@
                             </div>
                         </div>
                         <ul class="unit v-tree" v-if="unit.menu&&unit.menu.length">
-                            <vue-tree v-for="(item, i) in unit.menu"  :key="i"
-                                :model="item" 
-                                :activeid="unit.activeId" 
-                                @node-click="selectUnit">
+                            <vue-tree v-for="(item, i) in unit.menu" :key="i" :model="item" :activeid="unit.activeId" @node-click="selectUnit">
                             </vue-tree>
                         </ul>
                     </div>
                     <div class="main-box fr">
-                        <keep-alive>
+                        <!-- <keep-alive>
                             <component :is="currentComponent" :data="cData"></component>
+                        </keep-alive> -->
+                        <keep-alive>
+                            <router-view :data="cData"></router-view>
                         </keep-alive>
+                        
                     </div>
                 </div>
             </div>
-            
+
         </div>
 
         <div class="footer">
@@ -76,8 +91,14 @@
         </div>
     </div>
 
-<script src="static/js/vue.min.js"></script>
-<script src="static/js/jquery-2.1.1.min.js"></script>
-<script src="static/js/require.js" data-main="static/js/main"></script>
+    <audio id="originVoice" style="display: none" src="static/media/tts.mp3"></audio>
+
+    <!-- <script src="static/js/jquery-2.1.1.min.js"></script> -->
+    <script src="static/js/vue.min.js"></script>
+    <script src="static/js/vue-router.min.js"></script>
+    <!-- <script src="static/js/common.js"></script> -->
+    <!-- <script src="static/js/main.js"></script> -->
+    <script src="static/js/require.js" data-main="static/js/main"></script>
 </body>
+
 </html>

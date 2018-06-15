@@ -1,6 +1,10 @@
-define(['starbar'], function(){
-    Vue.component('result', {
+define(['starbar'], function(starbar){
+    // Vue.component('result', );
+    var component = {
         props: ['data'],
+        components: {
+            'starbar': starbar
+        },
         template: '<div v-if="data.list" class="speaking-result">'+
                     '<p class="title">{{data.title}}</p>'+
                     '<table class="list">'+
@@ -39,5 +43,7 @@ define(['starbar'], function(){
         methods: {
             
         }
-    });
+    }
+
+    return component;
 });

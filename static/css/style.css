@@ -113,7 +113,7 @@ a {
     background-image: url('../images/img-cloud1.png');
     background-position: 0 0;
     background-repeat: repeat-x;
-    animation: clouds 55s linear infinite;
+    animation: clouds 60s linear infinite;
 }
 @keyframes clouds {
     0% {background-position-x: 0;}
@@ -153,17 +153,17 @@ a {
     text-align: center;
     margin-bottom: 22px;
 }
-.speaking-content .nav-bar > div {
+.speaking-content .nav-bar .nav-item {
     display: inline-block;
     padding: 12px 10px;
     cursor: pointer;
     border-radius: 5px;
     user-select: none;
 }
-.speaking-content .nav-bar > div + div {
+.speaking-content .nav-bar .nav-item + .nav-item {
     margin-left: 22px;
 }
-.speaking-content .nav-bar > div > span {
+.speaking-content .nav-bar .nav-item > span {
     width: 130px;
     font-size: 20px;
     color: #fff;
@@ -171,36 +171,37 @@ a {
     display: inline-block;
     vertical-align: middle;
     text-align: right;
+    transition: width 0.25s;
 }
-.speaking-content .nav-bar > div.active > span {
+.speaking-content .nav-bar .nav-item.router-link-active > span {
     width: 155px;
 }
-.speaking-content .nav-bar > div > span > small {
+.speaking-content .nav-bar .nav-item > span > small {
     font-size: 12px;
     opacity: .5;
 }
-.speaking-content .nav-bar > div.word {
+.speaking-content .nav-bar .nav-item.word {
     background-color: #3DADEF;
 }
-.speaking-content .nav-bar > div.word > .sp-icon {
+.speaking-content .nav-bar .nav-item.word > .sp-icon {
     background-position: 0 -170px;
 }
-.speaking-content .nav-bar > div.sentence {
+.speaking-content .nav-bar .nav-item.sentence {
     background-color: #87E082;
 }
-.speaking-content .nav-bar > div.sentence > .sp-icon {
+.speaking-content .nav-bar .nav-item.sentence > .sp-icon {
     background-position: -56px -168px;
 }
-.speaking-content .nav-bar > div.record {
+.speaking-content .nav-bar .nav-item.record {
     background-color: #FCB040;
 }
-.speaking-content .nav-bar > div.record > .sp-icon {
+.speaking-content .nav-bar .nav-item.record > .sp-icon {
     background-position: -112px -172px;
 }
-.speaking-content .nav-bar > div.err {
+.speaking-content .nav-bar .nav-item.err {
     background-color: #FF4E70;
 }
-.speaking-content .nav-bar > div.err > .sp-icon {
+.speaking-content .nav-bar .nav-item.err > .sp-icon {
     background-position: -166px -171px;
 }
 
@@ -372,7 +373,7 @@ a {
     height: 36px;
 }
 .v-tree .children > li:last-child:before {
-    bottom: 21px;
+    bottom: 23px;
 }
 .v-tree .children > li:after {
     top: 10px;
@@ -593,10 +594,10 @@ a {
     background-position: -311px -3px;
 }
 .speaking-result .start-btn {
-    background-position: -258px -3px;
+    background-position: -365px -3px;
 }
 .speaking-result .mine-btn {
-    background-position: -365px -3px;
+    background-position: -258px -3px;
 }
 .speaking-result .list .grade {
     display: inline-block;

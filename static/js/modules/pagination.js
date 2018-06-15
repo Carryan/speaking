@@ -1,5 +1,6 @@
 define(function(){
-    Vue.component('pagination', {
+    // Vue.component('pagination', );
+    var component = {
         template: '<ul class="paging">'+
             '<li class="paging-item--prev" '+
                 ':class="{\'paging-item--disabled\': index === 1}" '+
@@ -143,5 +144,7 @@ define(function(){
                 this.size = val || 1
             }
         }
-    });
+    }
+
+    return component;
 });

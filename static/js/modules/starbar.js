@@ -1,5 +1,6 @@
 define(function(){
-    Vue.component('starbar', {
+    // Vue.component('starbar', );
+    var component = {
         props: ['data'],
         template: '<div class="star-box">'+
                     '<div class="star-item">'+
@@ -20,5 +21,7 @@ define(function(){
                 return "width: "+ (num ? num/5*100+"%" : 0)+";";
             }
         }
-    });
+    }
+
+    return component;
 });

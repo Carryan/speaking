@@ -1,5 +1,6 @@
 define(function(){
-    Vue.component('vue-tree', {
+    // Vue.component('vue-tree', );
+    var component = {
         name: 'tree-item',
         props: ['model', 'activeid'],
         template: '<li :class="{hasFolder: isFolder}">'+
@@ -37,5 +38,7 @@ define(function(){
                 this.$emit('node-click', id);
             }
         }
-    });
+    }
+
+    return component;
 });

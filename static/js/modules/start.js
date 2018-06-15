@@ -1,6 +1,10 @@
-define(['starbar'], function(){
-    Vue.component('start', {
+define(['starbar'], function(starbar){
+    // Vue.component('start', {});
+    var component = {
         props: ['data'],
+        components: {
+            'starbar': starbar
+        },
         template: '<div v-if="data.content" class="speaking-start">'+
                     '<div class="top">'+
                         '<p class="title">{{data.title}}</p>'+
@@ -32,6 +36,9 @@ define(['starbar'], function(){
                 grade: this.data.grade || false,
                 star: this.data.star || false
             }
+        },
+        created () {
+            console.log(this.$route);
         },
         computed: {
           isWord: function() {
@@ -68,6 +75,7 @@ define(['starbar'], function(){
             },
             playOrigin: function() {
                 this.isPronounce = true;
+                document.getElementById('originVoice').play();
             },
             recording: function() {
                 this.isRecording = true;
@@ -91,5 +99,7 @@ define(['starbar'], function(){
                 });
             }
         }
-    });
+    }
+
+    return component;
 });

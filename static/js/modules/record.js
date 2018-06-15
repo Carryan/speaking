@@ -1,6 +1,10 @@
-define(['pagination'], function(){
-    Vue.component('record', {
+define(['pagination'], function(page){
+    // Vue.component('record', );
+    var component = {
         props: ['data'],
+        components: {
+            'pagination': page
+        },
         template: '<div v-if="data.list" class="speaking-record">'+
                     '<table class="record-table table-triped">'+
                         '<thead>'+
@@ -15,7 +19,8 @@ define(['pagination'], function(){
                                 '<td>{{v.time}}</td>'+
                                 '<td class="progress">{{v.progress}}</td>'+
                                 '<td class="action">'+
-                                    '<a href="javascript:;" @click="getDetail()">查看详情</a>'+
+                                    // '<a href="javascript:;" @click="getDetail()">查看详情</a>'+
+                                    '<router-link :to="\'/record/detail\'" @click.native="getDetail()">查看详情</router-link>'+
                                 '</td>'+
                             '</tr>'+
                         '</tbody>'+
@@ -32,6 +37,9 @@ define(['pagination'], function(){
         data: function () {
             
         },
+        mounted: function(){
+            console.log(this.$route)
+        },
         computed: {
             
         },
@@ -40,9 +48,12 @@ define(['pagination'], function(){
                 console.log(page);
             },
             getDetail: function(){
-                this.$parent.currentComponent = "result";
+                // this.$parent.currentComponent = "result";
+                // this.$parent.$router.push({ path: '/record/detail'});
                 this.$parent.getMain('static/data/result.json');
             }
         }
-    });
+    }
+
+    return component;
 });

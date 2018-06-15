@@ -1,5 +1,5 @@
 define(function(){
-    Vue.component('speaking-header', {
+    var component = {
         props: ['logo', 'menu'],
         template: '<div class="header clearfix">'+
             '<div class="logo fl" v-if="logo">'+
@@ -16,5 +16,7 @@ define(function(){
                 '<a href="javascript:;" class="login-btn">登录</a>'+
             '</div>'+
         '</div>'
-    });
+    };
+
+    return component;
 });
