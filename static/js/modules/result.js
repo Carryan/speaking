@@ -1,7 +1,7 @@
 define(['starbar'], function(starbar){
     // Vue.component('result', );
     var component = {
-        props: ['data'],
+        props: ['nav'],
         components: {
             'starbar': starbar
         },
@@ -34,14 +34,65 @@ define(['starbar'], function(starbar){
                 '</div>',
         data: function () {
             return {
-                
+                data: {}
             }
+        },
+        created () {
+            this.setData();
         },
         computed: {
             
         },
+        watch: {
+            '$route': 'setData'
+        },
         methods: {
-            
+            setData: function() {
+                var _this = this,
+                    route = _this.$route,
+                    ajaxData = $.extend({}, route.query, {nav: _this.nav});
+
+                if(_this.nav==4){
+                    if(ajaxData.period&&ajaxData.subject&&ajaxData.version&&ajaxData.grade&&ajaxData.unit) {
+                        $.ajax({
+                            url: "static/data/result.json",
+                            type: 'GET',
+                            data: JSON.stringify(ajaxData),
+                            success: function(res) {
+                                if(res.state=="ok") {
+                                    _this.data = res.data;
+                                }else{
+                                    msgError(res.msg);
+                                }
+                            },
+                            error: function(xhr,status,error) {
+                                console.log(xhr,status,error);
+                                msgError(error);
+                            }
+                        });
+                    }else{
+                        _this.data = {};
+                    }
+                }else if(_this.nav==3){
+                    $.ajax({
+                        url: "static/data/result.json",
+                        type: 'GET',
+                        data: JSON.stringify(ajaxData),
+                        success: function(res) {
+                            if(res.state=="ok") {
+                                _this.data = res.data;
+                            }else{
+                                msgError(res.msg);
+                            }
+                        },
+                        error: function(xhr,status,error) {
+                            console.log(xhr,status,error);
+                            msgError(error);
+                        }
+                    });
+                }
+                
+            }
         }
     }
 

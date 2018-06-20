@@ -30,6 +30,17 @@ require.config({
     }
 });
 
+// jq 行为
+require(["jquery"], function(){
+    // 省略节点加标题
+    $(document).on("mouseover", ".v-tree .item", function(){
+        if(this.offsetWidth<this.scrollWidth && !this.getAttribute('title')) {
+            this.setAttribute('title', this.textContent);
+        }
+    });
+});
+
+
 var appData = {
     header: {
         logo: {
@@ -52,10 +63,10 @@ var appData = {
     nav: {
         active: "",
         navItems: [
-            {id: 1, name: "单词测评", class: "word", en: "Word Evaluation", to: "/word", compo: "start"},
-            {id: 2, name: "句子测评", class: "sentence", en: "Sentence Evaluation", to: "/sentence", compo: "start"},
-            {id: 3, name: "测评记录", class: "record", en: "Evaluation Record", to: "/record", compo: "record"},
-            {id: 4, name: "错题本", class: "err", en: "Evaluation Record", to: "/err", compo: "result"}
+            {id: 1, name: "单词测评", class: "word", en: "Word Evaluation", type: "word", to: "/word"},
+            {id: 2, name: "句子测评", class: "sentence", en: "Sentence Evaluation", type: "sentence", to: "/sentence"},
+            {id: 3, name: "测评记录", class: "record", en: "Evaluation Record", type: "record", to: "/record"},
+            {id: 4, name: "错题本", class: "err", en: "Evaluation Record", type: "err", to: "/err"}
         ]
     },
     book: {
@@ -123,8 +134,8 @@ require(['header', 'tree'], function(header, tree){
         { path: '/:nav/start', name: "start", component: Start},
         { path: '/sentence', component: Start },
         { path: '/record', component: Record },
-        { path: '/record/detail', component: Result },
-        { path: '/err', component: Result }
+        { path: '/record/detail', name:"record_detail", component: Result },
+        { path: '/err', name: "err", component: Result }
     ];
 
     var router = new VueRouter({
@@ -145,6 +156,7 @@ require(['header', 'tree'], function(header, tree){
         },
         watch: {
             '$route' (to, from) {
+                // console.log(to, from);
                 this.setData();
             }
         },
@@ -166,21 +178,58 @@ require(['header', 'tree'], function(header, tree){
             }
         },
         methods: {
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //  根据路由设置数据
             setData: function(){
-                var query = this.$route.query;
+                var _this = this,
+                    route = _this.$route,
+                    query = route.query,
+                    path = route.path,
+                    nav_path = "/"+path.split('/')[1];
+                // 导航栏激活
+                appData.nav.navItems.forEach(function(v){
+                    if(v.to==nav_path) appData.nav.active = v.id;
+                });
+                // 左侧目录
                 if(query){
                     appData.book.bookItems.forEach(function(v){
                         v.value = query[v.name];
                     });
-                    if(query.unit){
-                        appData.book.isOpen = false;
-                        this.getMenu();
+                    // 选择教材
+                    if(query.period&&query.subject&&query.version&&query.grade) {
+                        var data = {
+                            book: _this.getBook(),
+                            nav: _this.nav.active
+                        };
+                        $.ajax({
+                            url: 'static/data/unit.json',
+                            type: 'GET',
+                            data: data,
+                            success: function(res) {
+                                if(res.state=="ok") {
+                                    appData.book.bookName = res.data.bookName;
+                                    appData.unit.menu = res.data.menu;
+                                    appData.book.isOpen = false;
+                                    // 选择目录
+                                    if(query.unit){
+                                        _this.unit.activeId = query.unit;
+                                    }else{
+                                        _this.unit.activeId = 0;
+                                    }
+                                }else{
+                                    msgError(res.msg);
+                                }
+                            },
+                            error: function(xhr,status,error) {
+                                console.log(xhr,status,error);
+                                msgError(error);
+                            }
+                        });
                     }else{
-                        appData.book.isOpen = true;
+                        _this.book.isOpen = true;
+                        _this.unit.menu = [];
                     }
+                    
                 }
-                
             },
             // 获取教材数据
             getBook: function() {
@@ -195,62 +244,73 @@ require(['header', 'tree'], function(header, tree){
                 var book = this.getBook();
                 var _this = this;
                 var cur_path = _this.$route.path;
-                if(cur_path=='/'){
+
+                var cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active),
+                    nav_type = cur_nav[0].type;
+
+                if(!_this.nav.active) {
                     msgWarning('请选择菜单!');
                     return false;
-                }else if(!this.nav.active) { //如果路由激活，但nav.active未赋值时
-                    var nav = filterArray(this.nav.navItems, "to", cur_path);
-                    // this.nav.active = nav[0].id;
+                }else if(_this.nav.active==1||_this.nav.active==2){
+                    _this.$router.push({name: "start", params: {nav: nav_type}, query: _this.getBook()});
+                }else if(_this.nav.active==4){
+                    _this.$router.push({name: "err", query: _this.getBook()});
                 }
-                $.ajax({
-                    url: 'static/data/unit.json',
-                    type: 'GET',
-                    data: book,
-                    success: function(res) {
-                        if(res.state=="ok") {
-                            appData.book.bookName = res.data.bookName;
-                            appData.unit.menu = res.data.menu;
-                            appData.book.isOpen = false;
-                            // console.log(_this.$route);
-                            // _this.$router.push({path: cur_path, query: book})
-                        }else{
+                
+            
+                // 获取目录
+                // $.ajax({
+                //     url: 'static/data/unit.json',
+                //     type: 'GET',
+                //     data: book,
+                //     success: function(res) {
+                //         if(res.state=="ok") {
+                //             appData.book.bookName = res.data.bookName;
+                //             appData.unit.menu = res.data.menu;
+                //             appData.book.isOpen = false;
+                //         }else{
 
-                        }
-                    },
-                    error: function(xhr,status,error) {
-                        console.log(xhr,status,error)
-                    }
-                });
+                //         }
+                //     },
+                //     error: function(xhr,status,error) {
+                //         console.log(xhr,status,error)
+                //     }
+                // });
             },
             // 选择目录节点
             selectUnit: function(id) {
                 this.unit.activeId = id;
 
-                var cur_path = this.$route.path,
+                var _this = this,
                     querys = this.getBook(),
-                    nav = filterArray(this.nav.navItems, "id", this.nav.active),
-                    nav_type = nav[0].to.split('/').pop();
+                    cur_nav = filterArray(this.nav.navItems, "id", this.nav.active),
+                    nav_type = cur_nav[0].type;
                 
                 querys['unit'] = id;
-                this.$router.push({name: "start", params: {nav: nav_type}, query: querys})
+                if(_this.nav.active==1||_this.nav.active==2){
+                    this.$router.push({name: "start", params: {nav: nav_type}, query: querys})
+                }else if(_this.nav.active==4){
+                    this.$router.push({name: "err", query: querys});
+                }
+                
 
-                var nav = appData.nav.active;
-                var data = {
-                    nav: nav,
-                    book: this.getBook(),
-                    node: appData.unit.activeId
-                }
-                var url = "#";
-                if(nav==1){
-                    url = 'static/data/word.json';
-                }else if(nav==2) {
-                    url = 'static/data/sentence.json';
-                }else if(nav==3) {
-                    url = 'static/data/record.json';
-                }else if(nav==4) {
-                    url = 'static/data/result.json';
-                }
-                this.getMain(url, data);
+                // var nav = appData.nav.active;
+                // var data = {
+                //     nav: nav,
+                //     book: this.getBook(),
+                //     node: appData.unit.activeId
+                // }
+                // var url = "#";
+                // if(nav==1){
+                //     url = 'static/data/word.json';
+                // }else if(nav==2) {
+                //     url = 'static/data/sentence.json';
+                // }else if(nav==3) {
+                //     url = 'static/data/record.json';
+                // }else if(nav==4) {
+                //     url = 'static/data/result.json';
+                // }
+                // this.getMain(url, data);
             },
             // 点击菜单
             navClick: function(id) {
@@ -297,16 +357,6 @@ function filterArray(arr, key, val) {
         });
     return r;
 }
-
-// jq 行为
-require(["jquery"], function(){
-    // 省略节点加标题
-    $(document).on("mouseover", ".v-tree .item", function(){
-        if(this.offsetWidth<this.scrollWidth && !this.getAttribute('title')) {
-            this.setAttribute('title', this.textContent);
-        }
-    });
-});
 
 // common
 require(["layer"], function(){

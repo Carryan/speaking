@@ -76,7 +76,7 @@
                             <component :is="currentComponent" :data="cData"></component>
                         </keep-alive> -->
                         <keep-alive>
-                            <router-view :data="cData"></router-view>
+                            <router-view :nav="nav.active"></router-view>
                         </keep-alive>
                         
                     </div>

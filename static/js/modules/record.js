@@ -1,7 +1,7 @@
 define(['pagination'], function(page){
     // Vue.component('record', );
     var component = {
-        props: ['data'],
+        props: ['nav'],
         components: {
             'pagination': page
         },
@@ -35,7 +35,12 @@ define(['pagination'], function(page){
                     '></pagination>'+        
                 '</div>',
         data: function () {
-            
+            return {
+                data: {}
+            }
+        },
+        created () {
+            this.setData();
         },
         mounted: function(){
             console.log(this.$route)
@@ -43,14 +48,40 @@ define(['pagination'], function(page){
         computed: {
             
         },
+        watch: {
+            '$route': 'setData'
+        },
         methods: {
+            setData: function() {
+                var _this = this,
+                    route = _this.$route,
+                    ajaxData = $.extend({}, route.query, {nav: _this.nav});
+
+                $.ajax({
+                    url: "static/data/record.json",
+                    type: 'GET',
+                    data: JSON.stringify(ajaxData),
+                    success: function(res) {
+                        if(res.state=="ok") {
+                            _this.data = res.data;
+                        }else{
+                            msgError(res.msg);
+                        }
+                    },
+                    error: function(xhr,status,error) {
+                        console.log(xhr,status,error);
+                        msgError(error);
+                    }
+                });
+            },
             pageChange: function(page) {
                 console.log(page);
             },
             getDetail: function(){
                 // this.$parent.currentComponent = "result";
                 // this.$parent.$router.push({ path: '/record/detail'});
-                this.$parent.getMain('static/data/result.json');
+                // this.$parent.getMain('static/data/result.json');
+                this.$router.push({name: "record_detail", query: {id:1}});
             }
         }
     }
