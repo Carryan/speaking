@@ -78,9 +78,6 @@ define(['pagination'], function(page){
                 console.log(page);
             },
             getDetail: function(){
-                // this.$parent.currentComponent = "result";
-                // this.$parent.$router.push({ path: '/record/detail'});
-                // this.$parent.getMain('static/data/result.json');
                 this.$router.push({name: "record_detail", query: {id:1}});
             }
         }

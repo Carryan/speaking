@@ -23,13 +23,6 @@
 
             <div class="speaking-content" v-cloak>
                 <div class="nav-bar">
-                    <!-- <div v-for="(v, i) in nav.navItems" :class="['nav-item', v.class, {'router-link-active': v.id==nav.active}]" @click="navClick(v.id, v.compo)">
-                        <i class="sp-icon"></i>
-                        <span>{{v.name}}
-                            <br>
-                            <small>{{v.en}}</small>
-                        </span>
-                    </div> -->
                     <router-link v-for="(v, i) in nav.navItems" :class="['nav-item', v.class]" :to="v.to" @click.native="navClick(v.id)">
                         <i class="sp-icon"></i>
                         <span>{{v.name}}
@@ -46,37 +39,58 @@
                                 <span>{{book.bookName}}</span>
                                 <a href="javascript:;" class="open-btn" @click="book.isOpen=true">选择教材</a>
                             </div>
-                            <div class="items-wrap">
-                                <template v-for="(v, i) in book.bookItems">
-                                    <label>{{v.title}}：</label>
-                                    <div v-if="v.type=='radio'" class="item">
-                                        <label v-for="item in v.items" :class="{active: v.value == item.value}">
-                                            {{item.name}}
-                                            <input type="radio" :name="v.name" :value="item.value" v-model="v.value">
-                                        </label>
-                                    </div>
-                                    <div v-else-if="v.type=='select'" class="item">
-                                        <select :name="v.name" v-model="v.value">
-                                            <option v-for="item in v.items" :value="item.value">{{item.name}}</option>
-                                        </select>
-                                    </div>
-                                </template>
+
+                            <div class="items-wrap" v-if="book.bookItems.per">
+                                <label>学段：</label>
+                                <div class="item">
+                                    <label v-for="(item, index) in book.bookItems.per.list" 
+                                        :key="index" 
+                                        :class="{active: item.percode==book.bookItems.per.selected, disabled: !item.enabled}">
+                                        {{item.pername}}
+                                        <input type="radio" name="book_per" 
+                                            :disabled="!item.enabled"
+                                            :value="item.percode"
+                                            @change="menuChange('per')" 
+                                            v-model="book.bookItems.per.selected">
+                                    </label>
+                                </div>
+                                <label>科目：</label>
+                                <div class="item">
+                                    <label v-for="(item, index) in book.bookItems.sub.list" 
+                                        :key="index" 
+                                        :class="{active: item.subcode==book.bookItems.sub.selected}">
+                                        {{item.subname}}
+                                        <input type="radio" name="book_sub" 
+                                            :value="item.subcode"
+                                            v-model="book.bookItems.sub.selected">
+                                    </label>
+                                </div>
+                                <label>教版：</label>
+                                <div class="item">
+                                    <select name="book_mater" v-model="book.bookItems.mater.selected">
+                                        <option v-for="item in book.bookItems.mater.list" :value="item.matercode">{{item.matername}}</option>
+                                    </select>
+                                </div>
+                                <label>年级：</label>
+                                <div class="item">
+                                    <select name="book_fasc" v-model="book.bookItems.fasc.selected">
+                                        <option v-for="item in book.bookItems.fasc.list" :value="item.fasccode">{{item.fascname}}</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="bottom-side">
                                 <button @click="getMenu">确定</button>
                             </div>
                         </div>
+
                         <ul class="unit v-tree" v-if="unit.menu&&unit.menu.length">
                             <vue-tree v-for="(item, i) in unit.menu" :key="i" :model="item" :activeid="unit.activeId" @node-click="selectUnit">
                             </vue-tree>
                         </ul>
                     </div>
                     <div class="main-box fr">
-                        <!-- <keep-alive>
-                            <component :is="currentComponent" :data="cData"></component>
-                        </keep-alive> -->
                         <keep-alive>
-                            <router-view :nav="nav.active"></router-view>
+                            <router-view :nav="nav.active" :title="rightTitle"></router-view>
                         </keep-alive>
                         
                     </div>
@@ -91,13 +105,12 @@
         </div>
     </div>
 
-    <audio id="originVoice" style="display: none" src="static/media/tts.mp3"></audio>
+    <audio id="originVoice" style="display: none" src="#"></audio>
+    <audio id="recordVoice" style="display: none" src="#"></audio>
 
-    <!-- <script src="static/js/jquery-2.1.1.min.js"></script> -->
     <script src="static/js/vue.min.js"></script>
     <script src="static/js/vue-router.min.js"></script>
-    <!-- <script src="static/js/common.js"></script> -->
-    <!-- <script src="static/js/main.js"></script> -->
+    <!-- <script src="static/js/mock-min.js"></script> -->
     <script src="static/js/require.js" data-main="static/js/main"></script>
 </body>
 

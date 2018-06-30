@@ -3,13 +3,13 @@ define(function(){
     var component = {
         props: ['data'],
         template: '<div class="star-box">'+
-                    '<div class="star-item">'+
+                    '<div class="star-item" v-if="data.accuracy">'+
                         '准确度：<span class="star"><span class="star-cover" :style="starNum(data.accuracy)"></span></span>'+
                     '</div>'+
-                    '<div class="star-item">'+
+                    '<div class="star-item" v-if="data.integrity">'+
                         '完整度：<span class="star"><span class="star-cover" :style="starNum(data.integrity)"></span></span>'+
                     '</div>'+
-                    '<div class="star-item">'+
+                    '<div class="star-item" v-if="data.fluency">'+
                         '流利度：<span class="star"><span class="star-cover" :style="starNum(data.fluency)"></span></span>'+
                     '</div>'+
                 '</div>',

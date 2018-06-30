@@ -53,7 +53,7 @@ define(['starbar'], function(starbar){
                     ajaxData = $.extend({}, route.query, {nav: _this.nav});
 
                 if(_this.nav==4){
-                    if(ajaxData.period&&ajaxData.subject&&ajaxData.version&&ajaxData.grade&&ajaxData.unit) {
+                    if(ajaxData.unit) {
                         $.ajax({
                             url: "static/data/result.json",
                             type: 'GET',

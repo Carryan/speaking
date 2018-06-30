@@ -1,6 +1,6 @@
-* { margin: 0; padding: 0; outline: 0; box-sizing: border-box;}
-body { font-family: 'Microsoft YaHei'; font-size: 14px; line-height: 1;}
-ul, ol { list-style:none;}
+* { margin: 0; outline: 0; box-sizing: border-box;}
+body { font-family: 'Microsoft YaHei'; font-size: 14px; line-height: 1; padding: 0;}
+ul, ol { list-style:none;padding: 0;}
 table { border-collapse: collapse; border-spacing: 0;}
 input, select { vertical-align: middle;}
 
@@ -275,6 +275,9 @@ a {
     padding: 7px 11px;
     cursor: pointer;
 }
+.speaking-main .left-menu .book .items-wrap .item label.disabled {
+    opacity: .55;
+}
 .speaking-main .left-menu .book .items-wrap .item label.active {
     color: #fff;
     background-color: #20A0FF;
@@ -456,9 +459,15 @@ a {
     left: 30px;
     background-position: 0 0;
 }
+.speaking-start .middle .prev-btn.disabled {
+    background-position: -65px 0;
+}
 .speaking-start .middle .next-btn {
     background-position: -130px 0;
     right: 30px;
+}
+.speaking-start .middle .next-btn.disabled {
+    background-position-x: -195px;
 }
 .speaking-start .middle .grade {
     position: absolute;
@@ -493,16 +502,25 @@ a {
     width: 80px;
 }
 .speaking-start .bottom .origin-btn {
+    background-position: -180px -87px;
+    height: 55px;
+}
+.speaking-start .bottom .origin-btn.playing {
+    background: url('../images/voice.gif') center/cover;
+}
+.speaking-start .bottom .start-btn {
+    background-position: -245px -87px;
+    height: 80px;
+}
+.speaking-start .bottom .start-btn.recording {
+    background: url('../images/start.gif') 0 0 no-repeat;
+}
+.speaking-start .bottom .mine-btn {
     background-position: -115px -86px;
     height: 55px;
 }
-.speaking-start .bottom .start-btn {
-    background-position: -245px -86px;
-    height: 80px;
-}
-.speaking-start .bottom .mine-btn {
-    background-position: -180px -86px;
-    height: 55px;
+.speaking-start .bottom .mine-btn.playing {
+    background-position: -356px -88px;
 }
 .speaking-start .bottom .submit-btn {
     position: absolute;
@@ -683,4 +701,46 @@ a {
 .speaking-record .paging {
     text-align: right;
     padding: 20px 15px;
+}
+
+/* vue transition */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+/* layer弹框 */
+body .comfirm-dialog {
+    border-radius: 6px;
+}
+body .comfirm-dialog .layui-layer-title {
+    background-color: transparent;
+    border-bottom: none;
+}
+body .comfirm-dialog .layui-layer-content {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+}
+body .comfirm-dialog .layui-layer-content .layui-layer-ico {
+    position: static;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+body .comfirm-dialog .layui-layer-btn {
+    padding-bottom: 50px;
+}
+.comfirm-dialog .layui-layer-btn a {
+    height: 32px;
+    line-height: 32px;
+    border-radius: 16px;
+    color: #999;
+}
+.comfirm-dialog .layui-layer-btn .layui-layer-btn0 {
+    color: #fff;
+}
+.comfirm-dialog .layui-layer-close1 {
+    opacity: 0.6;
 }
