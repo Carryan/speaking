@@ -7,36 +7,11 @@ function getApi(name) {
         get_book: host+"persubmat",
         get_menu: host+"catalog",
         get_content: host+"orals",
-        post_record: host+"orals/record"
+        post_record: host+"orals/record",
+        submit_record: host+"orals/save",
+        history_list: host+"orals/history"
     }
     return arguments[0] ? api[name] : api;
-}
-
-// ajax
-function sendAjax(url, data, type, callback, beforeComplete) {
-    require(["layer", "jquery"], function(){
-        if(arguments[4]){
-            console.log("ajax 完成前");
-            $(document).ajaxStart(function(){
-                beforeComplete();
-            });
-        }
-        $.ajax({
-            url: url,
-            data: data,
-            type: type,
-            success: function(res) {
-                if(res.state=="ok"){
-                    callback(res);
-                }else{
-                    layer.msg(res.msg||"请求失败", {icon: 2, time: 1500});
-                }
-            },
-            error: function(xhr,status,error) {
-                layer.msg("网络错误："+error, {icon: 2, time: 1500});
-            }
-        });
-    });
 }
 
 //获取main.js所在路径
@@ -72,10 +47,6 @@ require.config({
     }
 });
 
-// Mock.mock('1.json','get',{
-//    'sid|+1': 1,
-// });
-
 // jq 行为
 require(["jquery"], function(){
     // 省略节点加标题
@@ -87,118 +58,60 @@ require(["jquery"], function(){
         }
     });
 
-    // $.ajax({
-    //     url: "1.json",
-    //     type: "GET",
-    //     success: function (res) {  
-    //         console.log(res);
-    //     }
-    // })
 });
 
-
-var appData = {
-    header: {
-        logo: {
-            url: "index.html",
-            icon: "static/images/logo.png"
-        },
-        menu: [
-            {url: "#", name: "首页"},
-            {url: "#", name: "课堂资源"},
-            {url: "#", name: "知识案例"},
-            {url: "#", name: "实验视频"},
-            {url: "#", name: "组卷中心"},
-            {url: "index.html", name: "口语测评", isActive: true}
-        ]
-    },
-    position: [
-        { url: "#", name: "首页"},
-        { url: "", name: "口语测评"}
-    ],
-    nav: {
-        active: "",
-        navItems: [
-            {id: 1, name: "单词测评", class: "word", en: "Word Evaluation", type: "word", to: "/word"},
-            {id: 2, name: "句子测评", class: "sentence", en: "Sentence Evaluation", type: "sentence", to: "/sentence"},
-            {id: 3, name: "测评记录", class: "record", en: "Evaluation Record", type: "record", to: "/record"},
-            {id: 4, name: "错题本", class: "err", en: "Evaluation Record", type: "err", to: "/err"}
-        ]
-    },
-    book: {
-        isOpen: true,
-        bookName: "选择教材",
-        bookItems: [
-            {
-                type: "radio",
-                name: "period",
-                title: "学段",
-                value: "1",
-                items: [
-                    {name: "小学", value: "1"},
-                    {name: "初中", value: "2"},
-                    {name: "高中", value: "3"}
-                ]
+// ajax
+function sendAjax(url, data, type, callback, beforeSend, complete) {
+    require(["layer", "jquery"], function(){
+        $.ajax({
+            url: url,
+            data: data,
+            type: type,
+            beforeSend: function() {
+                beforeSend && beforeSend();
             },
-            {
-                type: "radio",
-                name: "subject",
-                title: "科目",
-                value: "1",
-                items: [{name: "英语", value: "1"}]
+            complete: function() {
+                complete && complete();
             },
-            {
-                type: "select",
-                name: "version",
-                title: "教版",
-                value: "1",
-                items: [
-                    {name: "人教版", value: "1"},
-                    {name: "新课标", value: "2"}
-                ]
+            success: function(res) {
+                if(res.state=="ok"){
+                    callback(res);
+                }else{
+                    layer.msg(res.msg||"请求失败", {icon: 2, time: 1500});
+                }
             },
-            {
-                type: "select",
-                name: "grade",
-                title: "年级",
-                value: "1",
-                items: [
-                    {name: "一年级", value: "1"},
-                    {name: "二年级", value: "2"},
-                    {name: "三年级", value: "3"},
-                    {name: "四年级", value: "4"},
-                    {name: "五年级", value: "5"},
-                    {name: "六年级", value: "6"}
-                ]
+            error: function(xhr,status,error) {
+                layer.msg("网络异常："+error, {icon: 2, time: 1500});
             }
-        ]
-    },
-    unit: {
-        activeId: " ",
-        menu: []
-    },
-    // currentComponent: "",
-    cData: {}
+        });
+    });
 }
+
 
 require(['header', 'tree'], function(header, tree){
 
-    var Start = resolve => require(['start'], resolve), //必须是AMD风格的模块
-        Record  = resolve => require(['record'], resolve),
-        Result = resolve => require(['result'], resolve);
+    // var Start = resolve => require(['start'], resolve), //必须是AMD风格的模块
+    //     Record  = resolve => require(['record'], resolve),
+    //     Result = resolve => require(['result'], resolve);
+
+    var Start = function(resolve) {require(['start'], resolve)},
+        Record = function(resolve) {require(['record'], resolve)},
+        Result = function(resolve) {require(['result'], resolve)};
 
     var routes = [
         { path: '/' , redirect: '/word'},
         { path: '/word'},
-        { path: '/:nav/start', name: "start", component: Start},
         { path: '/sentence' },
+        { path: '/:nav/start', name: "start", component: Start},
+        { path: '/:nav/result', name: "result", component: Result},
         { path: '/record', component: Record },
         { path: '/record/detail', name:"record_detail", component: Result },
         { path: '/err', name: "err", component: Result }
     ];
 
     var router = new VueRouter({
-        routes 
+        // routes 
+        routes: routes
     });
 
     var api = getApi();
@@ -244,13 +157,13 @@ require(['header', 'tree'], function(header, tree){
             },
             rightTitle: ""
         },
-        router,
+        router: router,
         components: {
             'speaking-header': header,
             'vue-tree': tree
         },
         watch: {
-            '$route' (to, from) {
+            '$route': function(to, from) {
                 // console.log(to, from)
                 var tq = to.query, fq = from.query, isSameBook = false;
                 if(tq.mater==fq.mater&&tq.sub==fq.sub&&tq.fasc==fq.fasc&&tq.per==fq.per) {
@@ -262,22 +175,13 @@ require(['header', 'tree'], function(header, tree){
         created: function() {
             this.setData();
         },
-        beforeMount: function() {
-            // this.currentComponent = filterArray(this.nav.navItems, 'id', this.nav.active)[0].compo;
-        },
-        mounted: function() {
-            // console.log(this.$route);
-        },
-        beforeRouteUpdate (to, from, next) {
-            // console.log(this.$route);
-        },
         computed: {
             isMenu: function() {
                 return this.nav.active!=3;
             }
         },
         methods: {
-            //  根据路由设置数据
+            //  根据路由获取、设置数据
             setData: function(isSameBook){
                 var _this = this,
                     route = _this.$route,
@@ -289,7 +193,7 @@ require(['header', 'tree'], function(header, tree){
                 _this.nav.navItems.forEach(function(v){
                     if(v.to==nav_path) _this.nav.active = v.id;
                 });
-                
+               
                 // 左侧目录
                 if(query.per&&query.sub&&query.fasc&&query.mater){
                     var book_params = {
@@ -298,41 +202,45 @@ require(['header', 'tree'], function(header, tree){
                         subcode: query.sub,
                         fasccode: query.fasc
                     }
+
                     // 如果刷新，则重加载教材
                     if(JSON.stringify(_this.book.bookItems) == "{}") {
                         sendAjax(api.get_book, book_params, 'GET', function(res){
                             _this.book.bookItems = res.data;
+                            _this.book.bookName = _this.getBookName();
+                            _this.book.isOpen = false;
+                        });
+                    }else{
+                        _this.book.bookName = _this.getBookName();
+                    }
+
+                    // 教材改变时，获取目录，并激活目录
+                    var u_id = query.unit || "";
+                    if(isSameBook&&_this.unit.menu.length){
+                        _this.activeNode(u_id);
+                    }else{
+                        sendAjax(api.get_menu, book_params, 'GET', function(res){
+                            var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
+                            _this.unit.menu = tree;
+                            _this.book.isOpen = false;
+                            _this.activeNode(u_id);
                         });
                     }
-                    // 获取目录
-                    !isSameBook && sendAjax(api.get_menu, book_params, 'GET', function(res){
-                        var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
-                        _this.unit.menu = tree;
-                        if(query.unit) {
-                            _this.unit.activeId = query.unit;
-                            // 获取标题
-                            readTree(_this.unit.menu, function(node){
-                                var c = node.children;
-                                if(c.length){
-                                    var n = filterArray(c, "id", query.unit);
-                                    if(n[0]) {
-                                        _this.rightTitle = node.name;
-                                        return false;
-                                    }
-                                }
-                            });
-                        }else{
-                            _this.unit.activeId = " ";
-                        }
-                    });
-
+                    
                 }else{
                     // 获取教材
-                    sendAjax(api.get_book, {}, 'GET', function(res){
-                        _this.book.bookItems = res.data;
+                    if(JSON.stringify(_this.book.bookItems) == "{}") {
+                        sendAjax(api.get_book, {}, 'GET', function(res){
+                            _this.book.bookItems = res.data;
+                            _this.book.bookName = "选择教材";
+                            _this.book.isOpen = true;
+                            _this.unit.menu = [];
+                        });
+                    }else{
+                        _this.book.bookName = "选择教材";
                         _this.book.isOpen = true;
                         _this.unit.menu = [];
-                    });
+                    }
                 }
 
             },
@@ -345,11 +253,38 @@ require(['header', 'tree'], function(header, tree){
                 }
                 return book;
             },
+            getBookName: function() {
+                var b = this.book.bookItems;
+                var per = filterArray(b.per.list, "percode", b.per.selected),
+                    fasc = filterArray(b.fasc.list, "fasccode", b.fasc.selected),
+                    mater = filterArray(b.mater.list, "matercode", b.mater.selected),
+                    sub = filterArray(b.sub.list, "subcode", b.sub.selected);
+                return per[0].pername+mater[0].matername+sub[0].subname;
+            },
+            // 目录加载后，激活目录节点
+            activeNode: function(id) {
+                var right_title = "";
+                if(id) {
+                    this.unit.activeId = id;
+                    readTree(this.unit.menu, function(node){
+                        if(node.id==id) right_title = node.name;
+                    });
+                    this.rightTitle = right_title;
+                }else{
+                    // 默认激活第一项
+                    var auto_node;
+                    readTree(this.unit.menu, function(node){
+                        if((!node.children||!node.children.length)&&!auto_node) {
+                            auto_node = node;
+                        }
+                    });
+                    this.selectUnit(auto_node);
+                }
+            },
             // 改变教材选项
             menuChange: function(item) {
                 var params = {}, _this = this;
                 params[item+"code"] = this.book.bookItems[item].selected;
-
                 sendAjax(api.get_book, params, 'POST', function(res){
                     _this.book.bookItems = res.data;
                 });
@@ -358,7 +293,6 @@ require(['header', 'tree'], function(header, tree){
             getMenu: function() {
                 var _this = this;
                 var cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
-                
                 if(!_this.nav.active) {
                     msgWarning('请选择菜单!');
                     return false;
@@ -370,25 +304,21 @@ require(['header', 'tree'], function(header, tree){
                 _this.book.isOpen = false;
             },
             // 选择目录节点
-            selectUnit: function(id) {
-                this.unit.activeId = id;
-                
+            selectUnit: function(model) {
+                // 不可选设置
+                if(model.children&&model.children.length) return;
+                // 跳转路由
                 var _this = this,
-                    querys = this.getBook(),
-                    cur_nav = filterArray(this.nav.navItems, "id", this.nav.active);
-                
-                querys['unit'] = id;
+                    querys = _this.getBook(),
+                    cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
+                querys['unit'] = model.id;
                 if(_this.nav.active==1||_this.nav.active==2){
                     this.$router.push({name: "start", params: {nav: cur_nav[0].type}, query: querys});
                 }else if(_this.nav.active==4){
                     this.$router.push({name: "err", query: querys});
                 }
-                
-            },
-            // 点击菜单
-            navClick: function(id) {
-                this.nav.active=id;
             }
+
         }
     });
 });
@@ -434,6 +364,21 @@ require(["layer"], function(){
             }
         });
     }
+    
+    window.msgClose = function(ops) {
+        layer.open({
+            content: ops.content || " ",
+            icon: ops.icon || 7,
+            title: " ",
+            area: ops.width || '284px',
+            shade: 0,
+            btn: false,
+            skin: "msg-close",
+            resize: false,
+            move: false,
+            time: ops.time || 2000
+        });
+    }
 
 });
 
@@ -448,7 +393,7 @@ function filterArray(arr, key, val) {
 // 遍历对象，并回调
 function readTree(tree, callback) {
     for (var i = 0; i < tree.length; i++) {
-        callback(tree[i]);
+        var c = callback(tree[i]);
         if(tree[i].children) {
             readTree(tree[i].children, callback);
         }

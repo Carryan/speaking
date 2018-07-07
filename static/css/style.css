@@ -44,6 +44,33 @@ a {
 .table-triped tbody tr:nth-child(even) {
     background-color: #F2F2F2;
 }
+.empty-tip {
+    color: #999999;
+    text-align: center;
+}
+.loading {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    left: 50%;
+    top: 50%;
+    margin-left: -16px;
+    margin-top: -16px;
+    background: url('../images/loading.png') center no-repeat;
+    animation: rotate 2s linear infinite;
+    display: none;
+}
+.loading-active {
+    display: block;
+}
+@keyframes rotate {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 /* header */
 .header {
@@ -253,6 +280,8 @@ a {
 .speaking-main .left-menu .book .items-wrap {
     padding: 0 20px 23px;
     display: none;
+    position: relative;
+    min-height: 65px;
 }
 .speaking-main .left-menu .book.open .items-wrap {
     display: block;
@@ -392,7 +421,7 @@ a {
     border: 20px solid #AFC152;
     box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
     width: 1200px;
-    min-height: 600px;
+    min-height: 612px;
     background-color: #F1FDFF;
     border-radius: 5px;
 }
@@ -401,6 +430,7 @@ a {
 }
 .main-box > div {
     min-height: 560px;
+    position: relative;
 }
 
 .speaking-start .top {
@@ -409,6 +439,7 @@ a {
     color: #222222;
     padding-top: 16px;
     margin-bottom: 50px;
+    min-height: 84px;
 }
 .speaking-start .top .title {
     margin-bottom: 28px;
@@ -700,7 +731,7 @@ a {
 }
 .speaking-record .paging {
     text-align: right;
-    padding: 20px 15px;
+    padding: 20px;
 }
 
 /* vue transition */
@@ -712,8 +743,9 @@ a {
 }
 
 /* layer弹框 */
-body .comfirm-dialog {
+body .comfirm-dialog, body .msg-close {
     border-radius: 6px;
+    color: #666;
 }
 body .comfirm-dialog .layui-layer-title {
     background-color: transparent;
@@ -722,9 +754,9 @@ body .comfirm-dialog .layui-layer-title {
 body .comfirm-dialog .layui-layer-content {
     text-align: center;
     padding: 30px 20px;
-    color: #666;
 }
-body .comfirm-dialog .layui-layer-content .layui-layer-ico {
+body .comfirm-dialog .layui-layer-content .layui-layer-ico, 
+body .msg-close .layui-layer-content .layui-layer-ico{
     position: static;
     margin-right: 8px;
     vertical-align: middle;
@@ -743,4 +775,15 @@ body .comfirm-dialog .layui-layer-btn {
 }
 .comfirm-dialog .layui-layer-close1 {
     opacity: 0.6;
+}
+
+.msg-close .layui-layer-title {
+    height: 0;
+}
+.msg-close .layui-layer-setwin {
+    top: 50%;
+    margin-top: -8px;
+}
+body .msg-close .layui-layer-content {
+    padding: 10px 10px 10px 20px;
 }

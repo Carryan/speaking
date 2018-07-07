@@ -2,8 +2,8 @@ define(function(){
     // Vue.component('pagination', );
     var component = {
         template: '<ul class="paging">'+
-            '<li class="paging-item--prev" '+
-                ':class="{\'paging-item--disabled\': index === 1}" '+
+            '<li class="paging-item--prev" v-if="pageIndex>1" '+
+                // ':class="{\'paging-item--disabled\': index === 1}" '+
                 '@click="prev">{{ prevText }}</li>'+
             '<li v-if="isFisrtLast" class="paging-item--first" '+
                 ':class="{\'paging-item--disabled\': index === 1}" '+
@@ -16,8 +16,8 @@ define(function(){
             '<li v-if="isFisrtLast" class="paging-item--last" '+
                 ':class="{\'paging-item--disabled\': index === pages}" '+
                 '@click="last">{{ lastText }}</li>'+
-            '<li class="paging-item--next" '+
-                ':class="{\'paging-item--disabled\': index === pages}"'+
+            '<li class="paging-item--next" v-if="pageIndex!=total" '+
+                // ':class="{\'paging-item--disabled\': index === pages}"'+
                 '@click="next">{{ nextText }}</li>'+
         '</ul>',
         props: {
@@ -62,7 +62,7 @@ define(function(){
             return {
                 index : this.pageIndex, //当前页码
                 // limit : this.pageSize, //每页显示条数
-                size : this.total || 1, //总记录数
+                // size : this.total || 1, //总记录数
                 showPrevMore : false,
                 showNextMore : false
             }
@@ -70,7 +70,7 @@ define(function(){
         computed: {
             pages(){ //计算总页码
                 // return Math.ceil(this.size / this.limit)
-                return this.size;
+                return this.total;
             },
             //计算页码，当count等变化时自动计算
             pagers () {
@@ -140,9 +140,9 @@ define(function(){
             // pageSize(val) {
             //     this.limit = val || 10
             // },
-            total(val) {
-                this.size = val || 1
-            }
+            // total(val) {
+            //     this.size = val || 1
+            // }
         }
     }
 

@@ -23,7 +23,7 @@
 
             <div class="speaking-content" v-cloak>
                 <div class="nav-bar">
-                    <router-link v-for="(v, i) in nav.navItems" :class="['nav-item', v.class]" :to="v.to" @click.native="navClick(v.id)">
+                    <router-link v-for="(v, i) in nav.navItems" :class="['nav-item', v.class]" :to="v.to">
                         <i class="sp-icon"></i>
                         <span>{{v.name}}
                             <br>
@@ -78,19 +78,24 @@
                                     </select>
                                 </div>
                             </div>
+                            <div v-else class="items-wrap">
+                                <div class="loading loading-active"></div>
+                            </div>
                             <div class="bottom-side">
                                 <button @click="getMenu">确定</button>
                             </div>
                         </div>
 
-                        <ul class="unit v-tree" v-if="unit.menu&&unit.menu.length">
+                        <ul class="unit v-tree" v-if="unit.menu.length">
                             <vue-tree v-for="(item, i) in unit.menu" :key="i" :model="item" :activeid="unit.activeId" @node-click="selectUnit">
                             </vue-tree>
                         </ul>
+                        <div v-else>暂无记录</div>
+                        <!-- <div class="loading"></div> -->
                     </div>
                     <div class="main-box fr">
                         <keep-alive>
-                            <router-view :nav="nav.active" :title="rightTitle"></router-view>
+                            <router-view :nav="nav.active" :rtitle="rightTitle"></router-view>
                         </keep-alive>
                         
                     </div>

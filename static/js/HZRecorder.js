@@ -3,7 +3,7 @@
     //window.URL = window.URL || window.webkitURL;
     window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
     //navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-    var mediaConstraints = {audio: true};
+    var mediaConstraints = {audio: true, video: false};
 
     var HZRecorder = function (stream, config) {
         config = config || {};
@@ -112,19 +112,16 @@
             }
         };
 
-
         //开始录音
         this.start = function () {
             audioInput.connect(recorder);
             recorder.connect(context.destination);
         }
 
-
         //停止
         this.stop = function () {
             recorder.disconnect();
         }
-
 
         //获取音频文件
         this.getBlob = function () {
@@ -142,12 +139,10 @@
             return new Blob(buffer, { type: 'audio/pcm' });
         }
 
-
         //回放
         this.play = function (audio) {
             audio.src = window.URL.createObjectURL(this.getBlob());
         }
-
 
         //上传
         this.upload = function (url, callback) {
@@ -184,7 +179,7 @@
     //抛出异常
     HZRecorder.throwError = function (message) {
         alert(message);
-        throw new function () { this.toString = function () { return message; } }
+        // throw new function () { this.toString = function () { return message; } }
     }
     //是否支持录音
     HZRecorder.canRecording = (navigator.getUserMedia != null);
@@ -192,20 +187,25 @@
     //获取录音机
     HZRecorder.get = function (callback, config) {
         if (callback) {
-
+            
             function getUserMedia(constrains,success,error){
-                if(navigator.mediaDevices.getUserMedia){
+                if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
                     //最新标准API
+                    // navigator.mediaDevices.enumerateDevices().then(function(devices) {
+                    //     console.log(devices);
+                    // }).catch(function(err) {
+                    //     console.log(err.name + ": " + err.message);
+                    // });
                     navigator.mediaDevices.getUserMedia(constrains).then(success).catch(error);
                 } else if (navigator.webkitGetUserMedia){
                     //webkit内核浏览器
-                    navigator.webkitGetUserMedia(constrains).then(success).catch(error);
+                    navigator.webkitGetUserMedia(constrains, success, error);
                 } else if (navigator.mozGetUserMedia){
                     //Firefox浏览器
-                    navagator.mozGetUserMedia(constrains).then(success).catch(error);
+                    navagator.mozGetUserMedia(constrains, success, error);
                 } else if (navigator.getUserMedia){
                     //旧版API
-                    navigator.getUserMedia(constrains).then(success).catch(error);
+                    navigator.getUserMedia(constrains, success, error);
                 }
             }
 
@@ -216,50 +216,33 @@
 
             function onMediaError(err) {
                 console.log(err.name, err.message);
+                switch (err.name) {
+                    case 'PermissionDeniedError':
+                        HZRecorder.throwError('用户或者系统拒绝使用麦克风。');
+                        break;
+                    case 'NotSupportedError':
+                        HZRecorder.throwError('当前页面不支持使用麦克风。');
+                        break;
+                    case 'NotFoundError':
+                        HZRecorder.throwError('无法找到设备。');
+                        break;
+                    default:
+                        HZRecorder.throwError('无法打开麦克风。异常信息:' + err.message);
+                        break;
+                }
             }
-
-            if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
+            
+            if ((navigator.mediaDevices&&navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
                 //调用用户媒体设备，访问摄像头
                 getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
             } else {
-                alert("你的浏览器不支持访问用户媒体设备");
+                alert("您的浏览器不支持访问用户媒体设备，请换个浏览器，如：谷歌浏览器。");
             }
 
-            /*if (navigator.getUserMedia) {
-                navigator.getUserMedia(
-                    { audio: true } //只启用音频
-                    , function (stream) {
-                        var rec = new HZRecorder(stream, config);
-                        callback(rec);
-                    }
-                    , function (error) {
-                        switch (error.code || error.name) {
-                            case 'PERMISSION_DENIED':
-                            case 'PermissionDeniedError':
-                                HZRecorder.throwError('用户拒绝提供信息。');
-                                break;
-                            case 'NOT_SUPPORTED_ERROR':
-                            case 'NotSupportedError':
-                                HZRecorder.throwError('浏览器不支持硬件设备。');
-                                break;
-                            case 'MANDATORY_UNSATISFIED_ERROR':
-                            case 'MandatoryUnsatisfiedError':
-                                HZRecorder.throwError('无法发现指定的硬件设备。');
-                                break;
-                            default:
-                                HZRecorder.throwError('无法打开麦克风。异常信息:' + (error.code || error.name));
-                                break;
-                        }
-                    });
-            } else {
-                HZRecorder.throwErr('当前浏览器不支持录音功能。'); return;
-            }*/
         }
     }
 
-
     window.HZRecorder = HZRecorder;
-
 
 })(window);
 

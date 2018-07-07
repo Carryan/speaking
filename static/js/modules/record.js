@@ -1,11 +1,11 @@
 define(['pagination'], function(page){
-    // Vue.component('record', );
+    var api = getApi();
     var component = {
         props: ['nav'],
         components: {
             'pagination': page
         },
-        template: '<div v-if="data.list" class="speaking-record">'+
+        template: '<div v-if="list" class="speaking-record">'+
                     '<table class="record-table table-triped">'+
                         '<thead>'+
                             '<tr>'+
@@ -13,7 +13,7 @@ define(['pagination'], function(page){
                             '</tr>'+
                         '</thead>'+
                         '<tbody>'+
-                            '<tr v-for="(v, i) in data.list">'+
+                            '<tr v-for="(v, i) in list">'+
                                 '<td class="title">{{v.name}}</td>'+
                                 '<td>{{v.type}}</td>'+
                                 '<td>{{v.time}}</td>'+
@@ -25,52 +25,44 @@ define(['pagination'], function(page){
                             '</tr>'+
                         '</tbody>'+
                     '</table>'+
-                    '<pagination v-if="data.page" '+
-                        ':page-index="data.page.cur"'+
+                    '<pagination v-if="page" '+
+                        ':page-index="page.cur"'+
                         ':is-fisrt-last="false"'+
                         ':prev-text="\'<\'"'+
                         ':next-text="\'>\'"'+
-                        ':total="data.page.total"'+
+                        ':total="page.total"'+
                         '@change="pageChange"'+
                     '></pagination>'+        
                 '</div>',
         data: function () {
             return {
-                data: {}
+                list: [],
+                page: {}
             }
         },
         created () {
             this.setData();
         },
-        mounted: function(){
-            console.log(this.$route)
-        },
-        computed: {
-            
-        },
         watch: {
-            '$route': 'setData'
+            '$route': function(to, from) {
+                this.setData();
+            }
         },
         methods: {
             setData: function() {
-                var _this = this,
-                    route = _this.$route,
-                    ajaxData = $.extend({}, route.query, {nav: _this.nav});
-
-                $.ajax({
-                    url: "static/data/record.json",
-                    type: 'GET',
-                    data: JSON.stringify(ajaxData),
-                    success: function(res) {
-                        if(res.state=="ok") {
-                            _this.data = res.data;
-                        }else{
-                            msgError(res.msg);
-                        }
-                    },
-                    error: function(xhr,status,error) {
-                        console.log(xhr,status,error);
-                        msgError(error);
+                var _this = this;
+                !_this.list[0] && sendAjax(api.history_list, {p:1, s:11}, "POST", function(res){
+                    res.data.list.forEach(function(v){
+                        _this.list.push({
+                            name: v.book_catalog_name,
+                            type: v.category=="read_word"?"单词测评":"句子测评",
+                            time: v.create_time,
+                            progress: v.complete_number+"/"+v.total_number
+                        });
+                    });
+                    _this.page = {
+                        cur: res.data.pageNumber,
+                        total: res.data.totalPage
                     }
                 });
             },
