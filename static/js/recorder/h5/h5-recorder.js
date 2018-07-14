@@ -3,17 +3,17 @@
     //window.URL = window.URL || window.webkitURL;
     window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
     //navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-    var mediaConstraints = {audio: true, video: false};
+    var mediaConstraints = {audio: true};
 
     var HZRecorder = function (stream, config) {
         config = config || {};
         config.sampleBits = config.sampleBits || 16;      //采样数位 8, 16
-        config.sampleRate = config.sampleRate || (8000);   //采样率(1/6 44100)
+        config.sampleRate = config.sampleRate || (16000);   //采样率(1/6 44100)
 
 
         var context = new AudioContext();
         var audioInput = context.createMediaStreamSource(stream);
-        var recorder = context.createScriptProcessor(4096, 1, 1);
+        var recorder = context.createScriptProcessor(0, 1, 1);
 
         var audioData = {
             size: 0          //录音文件长度
@@ -52,13 +52,11 @@
                 var sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits);
                 var bytes = this.compress();
                 var dataLength = bytes.length * (sampleBits / 8);
-                var buffer = new ArrayBuffer(dataLength);
+                var buffer = new ArrayBuffer(44 + dataLength);
                 var data = new DataView(buffer);
 
-
-                var channelCount = 1;//单声道
+                var channelCount = config.channels || 1;//单声道
                 var offset = 0;
-
 
                 var writeString = function (str) {
                     for (var i = 0; i < str.length; i++) {
@@ -66,7 +64,7 @@
                     }
                 }
                 
-                /*// 资源交换文件标识符 
+                // 资源交换文件标识符 
                 writeString('RIFF'); offset += 4;
                 // 下个地址开始到文件尾总字节数,即文件大小-8 
                 data.setUint32(offset, 36 + dataLength, true); offset += 4;
@@ -91,7 +89,7 @@
                 // 数据标识符 
                 writeString('data'); offset += 4;
                 // 采样数据总数,即数据总大小-44 
-                data.setUint32(offset, dataLength, true); offset += 4;*/
+                data.setUint32(offset, dataLength, true); offset += 4;
                 // 写入采样数据 
                 if (sampleBits === 8) {
                     for (var i = 0; i < bytes.length; i++, offset++) {
@@ -106,16 +104,16 @@
                         data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
                     }
                 }
-
-
-                return new Blob([data], { type: 'audio/pcm' });
+                return new Blob([data], { type: 'audio/wav' });
             }
         };
 
         //开始录音
-        this.start = function () {
+        this.start = function ( startfn ) {
+            this.clear();
             audioInput.connect(recorder);
             recorder.connect(context.destination);
+            startfn && startfn();
         }
 
         //停止
@@ -129,44 +127,39 @@
             return audioData.encodeWAV();
         }
 
-        //PCM
-        this.getPCM = function(){
-            this.stop();
-            var bytes = audioData.compress();
-            var dataLength = bytes.length * (sampleBits / 8);
-            var buffer = new ArrayBuffer(dataLength);
-            //var data = new DataView(audioData.buffer);
-            return new Blob(buffer, { type: 'audio/pcm' });
-        }
-
         //回放
         this.play = function (audio) {
             audio.src = window.URL.createObjectURL(this.getBlob());
         }
 
-        //上传
-        this.upload = function (url, callback) {
-            var fd = new FormData();
-            fd.append("audioData", this.getBlob());
-            var xhr = new XMLHttpRequest();
-            if (callback) {
-                xhr.upload.addEventListener("progress", function (e) {
-                    callback('uploading', e);
-                }, false);
-                xhr.addEventListener("load", function (e) {
-                    callback('ok', e);
-                }, false);
-                xhr.addEventListener("error", function (e) {
-                    callback('error', e);
-                }, false);
-                xhr.addEventListener("abort", function (e) {
-                    callback('cancel', e);
-                }, false);
-            }
-            xhr.open("POST", url);
-            xhr.send(fd);
+        //清除缓存
+        this.clear = function(){
+            audioData.size = 0;
+            audioData.buffer = [];
         }
 
+        //上传
+        this.upload = function (url, params, callback) {
+            var fd = new FormData();
+            fd.append("audioData", this.getBlob());
+
+            for( key in params ){
+                fd.append(key, params[key]);
+            }
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                cache: false,
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function(res) {
+                callback('success', res);
+            }).fail(function(res) {
+                callback('error', res);
+            });
+        }
 
         //音频采集
         recorder.onaudioprocess = function (e) {
@@ -174,38 +167,35 @@
             //record(e.inputBuffer.getChannelData(0));
         }
 
-
     };
+
     //抛出异常
     HZRecorder.throwError = function (message) {
         alert(message);
-        // throw new function () { this.toString = function () { return message; } }
+        throw new function () { this.toString = function () { return message; } }
     }
+
     //是否支持录音
     HZRecorder.canRecording = (navigator.getUserMedia != null);
 
     //获取录音机
     HZRecorder.get = function (callback, config) {
+
         if (callback) {
-            
+
             function getUserMedia(constrains,success,error){
-                if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+                if(navigator.mediaDevices.getUserMedia){
                     //最新标准API
-                    // navigator.mediaDevices.enumerateDevices().then(function(devices) {
-                    //     console.log(devices);
-                    // }).catch(function(err) {
-                    //     console.log(err.name + ": " + err.message);
-                    // });
                     navigator.mediaDevices.getUserMedia(constrains).then(success).catch(error);
                 } else if (navigator.webkitGetUserMedia){
                     //webkit内核浏览器
-                    navigator.webkitGetUserMedia(constrains, success, error);
+                    navigator.webkitGetUserMedia(constrains).then(success).catch(error);
                 } else if (navigator.mozGetUserMedia){
                     //Firefox浏览器
-                    navagator.mozGetUserMedia(constrains, success, error);
+                    navagator.mozGetUserMedia(constrains).then(success).catch(error);
                 } else if (navigator.getUserMedia){
                     //旧版API
-                    navigator.getUserMedia(constrains, success, error);
+                    navigator.getUserMedia(constrains).then(success).catch(error);
                 }
             }
 
@@ -216,33 +206,24 @@
 
             function onMediaError(err) {
                 console.log(err.name, err.message);
-                switch (err.name) {
-                    case 'PermissionDeniedError':
-                        HZRecorder.throwError('用户或者系统拒绝使用麦克风。');
-                        break;
-                    case 'NotSupportedError':
-                        HZRecorder.throwError('当前页面不支持使用麦克风。');
-                        break;
-                    case 'NotFoundError':
-                        HZRecorder.throwError('无法找到设备。');
-                        break;
-                    default:
-                        HZRecorder.throwError('无法打开麦克风。异常信息:' + err.message);
-                        break;
+            }
+            try{
+                if ( navigator.mediaDevices.getUserMedia || 
+                     navigator.getUserMedia || 
+                     navigator.webkitGetUserMedia || 
+                     navigator.mozGetUserMedia ){
+                    //调用用户媒体设备，访问摄像头
+                    getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
                 }
+            }catch(e){
+                
             }
-            
-            if ((navigator.mediaDevices&&navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
-                //调用用户媒体设备，访问摄像头
-                getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-            } else {
-                alert("您的浏览器不支持访问用户媒体设备，请换个浏览器，如：谷歌浏览器。");
-            }
-
         }
     }
 
+
     window.HZRecorder = HZRecorder;
+
 
 })(window);
 

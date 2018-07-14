@@ -47,6 +47,7 @@ a {
 .empty-tip {
     color: #999999;
     text-align: center;
+    padding: 15px;
 }
 .loading {
     position: absolute;
@@ -624,8 +625,11 @@ a {
     font-size: 20px;
     padding: 15px 15px 18px;
 }
-.speaking-result .list {
+.speaking-result .list-box {
+    min-height: 416px;
     margin-bottom: 45px;
+}
+.speaking-result .list {
     width: 100%;
     text-align: center;
 }
@@ -633,7 +637,7 @@ a {
     background-color: #D8D8D8;
 }
 .speaking-result .list thead td {
-    padding: 10px 0;
+    padding: 10px 20px;
 }
 .speaking-result .sp-icon {
     width: 45px;
@@ -642,11 +646,23 @@ a {
 .speaking-result .origin-btn {
     background-position: -311px -3px;
 }
+.speaking-result .origin-btn.playing {
+    background: url('../images/voice.gif') no-repeat;
+    background-position: 0 0;
+    background-size: 46px 46px;
+}
 .speaking-result .start-btn {
     background-position: -365px -3px;
 }
+.speaking-result .start-btn.playing {
+    background: url(../images/start.gif) 0 0 no-repeat;
+    background-size: 45px 45px;
+}
 .speaking-result .mine-btn {
     background-position: -258px -3px;
+}
+.speaking-result .mine-btn.playing {
+    background-position: -362px -158px;
 }
 .speaking-result .list .grade {
     display: inline-block;
@@ -678,6 +694,18 @@ a {
     font-size: 16px;
     margin-right: 30px;
     text-align: left;
+}
+.speaking-result .list .detail .word {
+    color: #FF0000;
+    font-size: 20px;
+}
+.speaking-result .list .detail .pronounce {
+    margin-left: 14px;
+    color: #919191;
+    font-size: 16px;
+}
+.speaking-result .list .detail .pronounce > span {
+    color: #FF0000;
 }
 .speaking-result .bottom {
     padding: 25px;
@@ -786,4 +814,15 @@ body .comfirm-dialog .layui-layer-btn {
 }
 body .msg-close .layui-layer-content {
     padding: 10px 10px 10px 20px;
+}
+
+#flashObject {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -68px;
+    margin-left: -104px;
+}
+#originVoice, #recordVoice {
+    display: none;
 }

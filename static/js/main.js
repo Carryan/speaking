@@ -1,15 +1,16 @@
 
 // api
 function getApi(name) {
-    var host = "http://139.129.252.49:8080/orals/";
+    var host = "http://139.129.252.49:8080/";
     var api = {
         host: "http://139.129.252.49:8080",
         get_book: host+"persubmat",
         get_menu: host+"catalog",
         get_content: host+"orals",
-        post_record: host+"orals/record",
-        submit_record: host+"orals/save",
-        history_list: host+"orals/history"
+        post_record: host+"orals/record", //上传录音
+        submit_record: host+"orals/save", //保存录音结果
+        history_list: host+"orals/history",
+        get_audio: host+"orals/qnlink", //重新获取音频
     }
     return arguments[0] ? api[name] : api;
 }
@@ -36,8 +37,7 @@ require.config({
         starbar: "modules/starbar",
         layer: "layer/layer",
         jquery: "jquery-2.1.1.min",
-        mediaRecorder: "MediaStreamRecorder.min",
-        HZRecorder: "HZRecorder"
+        recorder: "recorder/recorder"
     },
     shim: {
         layer: {
@@ -77,11 +77,11 @@ function sendAjax(url, data, type, callback, beforeSend, complete) {
                 if(res.state=="ok"){
                     callback(res);
                 }else{
-                    layer.msg(res.msg||"请求失败", {icon: 2, time: 1500});
+                    layer.msg(res.msg||"操作失败", {icon: 2, time: 1500});
                 }
             },
             error: function(xhr,status,error) {
-                layer.msg("网络异常："+error, {icon: 2, time: 1500});
+                layer.msg(error||"网络异常", {icon: 2, time: 1500});
             }
         });
     });

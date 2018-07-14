@@ -14,13 +14,14 @@ define(['pagination'], function(page){
                         '</thead>'+
                         '<tbody>'+
                             '<tr v-for="(v, i) in list">'+
-                                '<td class="title">{{v.name}}</td>'+
-                                '<td>{{v.type}}</td>'+
-                                '<td>{{v.time}}</td>'+
-                                '<td class="progress">{{v.progress}}</td>'+
+                                '<td class="title">{{v.book_catalog_name}}</td>'+
+                                '<td>{{v.category=="read_word"?"单词测评":"句子测评"}}</td>'+
+                                '<td>{{v.create_time}}</td>'+
+                                '<td class="progress">{{v.complete_number+"/"+v.total_number}}</td>'+
                                 '<td class="action">'+
-                                    // '<a href="javascript:;" @click="getDetail()">查看详情</a>'+
-                                    '<router-link :to="\'/record/detail\'" @click.native="getDetail()">查看详情</router-link>'+
+                                    '<a href="javascript:;" '+
+                                        '@click="getDetail(v.category, v.book_catalog_id, v.book_catalog_name)">查看详情'+
+                                    '</a>'+
                                 '</td>'+
                             '</tr>'+
                         '</tbody>'+
@@ -37,10 +38,11 @@ define(['pagination'], function(page){
         data: function () {
             return {
                 list: [],
-                page: {}
+                page: {},
+                page_size: 11
             }
         },
-        created () {
+        created: function() {
             this.setData();
         },
         watch: {
@@ -51,15 +53,8 @@ define(['pagination'], function(page){
         methods: {
             setData: function() {
                 var _this = this;
-                !_this.list[0] && sendAjax(api.history_list, {p:1, s:11}, "POST", function(res){
-                    res.data.list.forEach(function(v){
-                        _this.list.push({
-                            name: v.book_catalog_name,
-                            type: v.category=="read_word"?"单词测评":"句子测评",
-                            time: v.create_time,
-                            progress: v.complete_number+"/"+v.total_number
-                        });
-                    });
+                !_this.list[0] && sendAjax(api.history_list, {p:1, s:_this.page_size}, "POST", function(res){
+                    _this.list = res.data.list;
                     _this.page = {
                         cur: res.data.pageNumber,
                         total: res.data.totalPage
@@ -67,10 +62,18 @@ define(['pagination'], function(page){
                 });
             },
             pageChange: function(page) {
-                console.log(page);
+                var _this = this;
+                sendAjax(api.history_list, {p: page, s: _this.page_size}, "POST", function(res){
+                    _this.list = res.data.list;
+                    _this.page = {
+                        cur: res.data.pageNumber,
+                        total: res.data.totalPage
+                    }
+                });
             },
-            getDetail: function(){
-                this.$router.push({name: "record_detail", query: {id:1}});
+            getDetail: function(cate, id, t){
+                this.$parent.rightTitle = t;
+                this.$router.push({name: "record_detail", query: {category: cate, bookCatalogId: id}});
             }
         }
     }
