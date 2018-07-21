@@ -16,7 +16,7 @@ define(function(){
             '<li v-if="isFisrtLast" class="paging-item--last" '+
                 ':class="{\'paging-item--disabled\': index === pages}" '+
                 '@click="last">{{ lastText }}</li>'+
-            '<li class="paging-item--next" v-if="pageIndex!=total" '+
+            '<li class="paging-item--next" v-if="pageIndex!=total&&total>0" '+
                 // ':class="{\'paging-item--disabled\': index === pages}"'+
                 '@click="next">{{ nextText }}</li>'+
         '</ul>',
@@ -68,18 +68,18 @@ define(function(){
             }
         },
         computed: {
-            pages(){ //计算总页码
+            pages: function(){ //计算总页码
                 // return Math.ceil(this.size / this.limit)
                 return this.total;
             },
             //计算页码，当count等变化时自动计算
-            pagers () {
-                const array = [];
-                const perPages = this.perPages;
-                const pageCount = this.pages;
-                let current = this.index;
-                const _offset = (perPages - 1) / 2;
-                const offset = {
+            pagers: function() {
+                var array = [];
+                var perPages = this.perPages;
+                var pageCount = this.pages;
+                var current = this.index;
+                var _offset = (perPages - 1) / 2;
+                var offset = {
                     start : current - _offset,
                     end   : current + _offset
                 }
@@ -97,7 +97,7 @@ define(function(){
                 this.showPrevMore = (offset.start > 1)
                 this.showNextMore = (offset.end < pageCount)
 
-                for (let i = offset.start; i <= offset.end; i++) {
+                for (var i = offset.start; i <= offset.end; i++) {
                     array.push(i)
                 }
 
@@ -134,7 +134,7 @@ define(function(){
             }
         },
         watch : {
-            pageIndex(val) {
+            'pageIndex': function(val) {
                 this.index = val || 1
             },
             // pageSize(val) {

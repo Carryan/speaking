@@ -47,7 +47,7 @@ define(['pagination'], function(page){
         },
         watch: {
             '$route': function(to, from) {
-                this.setData();
+                if(to.path=="/record") this.setData();
             }
         },
         methods: {

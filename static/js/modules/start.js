@@ -3,8 +3,10 @@ define(['starbar', 'recorder'], function(starbar){
     var api = getApi();
     var c_key;
     var originAudio, recordAudio;
-    
+
     var recorder;
+    var waitReady;
+    var waitResult;
 
     var component = {
         props: ['nav', 'rtitle'],
@@ -13,13 +15,15 @@ define(['starbar', 'recorder'], function(starbar){
         },
         template: '<div class="speaking-start">'+
                     '<div class="top">'+
-                        '<p class="title">{{rtitle}}</p>'+
+                        '<p class="title" v-if="state>0">{{rtitle}}</p>'+
                         '<p class="progress" v-show="list.length"><span>{{progress}}</span></p>'+
                     '</div>'+
                     '<div class="middle" v-show="content.en">'+
-                        '<p :class="{word: isWord, sentence: !isWord}">{{content.en}}</p>'+
+                        '<p v-if="isWord" class="word">{{content.en}}</p>'+
+                        '<p v-else class="sentence" v-html="strToHtml(content.content)||content.en"></p>'+
                         '<p class="pronunciation" v-if="isWord" v-show="content.grade">'+
-                            '[<span>{{content.pronounce}}</span>]'+
+                            // '[<span>{{content.pronounce}}</span>]'+
+                            '[<span v-html="strToHtml(content.content)"></span>]'+
                         '</p>'+
                         '<p v-if="!isWord" class="translate">{{content.cn}}</p>'+
                         '<a href="javascript:;" class="prev-btn sp-icon"'+
@@ -56,6 +60,8 @@ define(['starbar', 'recorder'], function(starbar){
                 list: [],
                 index: 0,
                 content: {},
+                isReady: false,
+                isChecking: false,
                 isPronouncing: false,
                 isRecording: false,
                 isPlayRecord: false,
@@ -67,29 +73,7 @@ define(['starbar', 'recorder'], function(starbar){
         },
         mounted: function () {
             var _this = this;
-            recorder = new AudioRecorder({
-                baseUrl: 'static/js/recorder/',
-                uploadUrl: api.post_record,
-                onSuccess: function(res){
-                    if( res && res.state == 'ok' ){
-                        var rd = res.data;
-                        // console.log(rd);
-                        _this.list[_this.index].key = rd.key;
-                        _this.list[_this.index].record_url = rd.recordUrl;
-                        _this.list[_this.index].total_score = rd.totalScore;
-                        _this.list[_this.index].integrity_score = rd.integrityScore||0;
-                        _this.list[_this.index].fluency_score = rd.fluencyScore||0;
-                        _this.list[_this.index].accuracy_score = rd.accuracyScore||0;
-                        _this.transData(_this.list[_this.index]);
-                    }else{
-                        msgError(res.msg);
-                    }
-                },
-                onError: function(res){
-                    msgError(res);
-                }
-            });
-
+            
             originAudio = document.getElementById('originVoice');
             originAudio.onended = function() {
                 _this.isPronouncing = false;
@@ -149,7 +133,12 @@ define(['starbar', 'recorder'], function(starbar){
             }
         },
         watch: {
-            '$route': 'setData'
+            '$route': function(to, from) {
+                if(to.name=="start") this.setData();
+            },
+            'isReady': function(v) {
+                v && waitReady && layer.close(waitReady);
+            }
         },
         beforeRouteLeave: function(to, from, next) {
             if(this.state==3&&this.state!=4) {
@@ -178,7 +167,9 @@ define(['starbar', 'recorder'], function(starbar){
                 this.isPronouncing = false;
                 this.isPlayRecord = false;
                 this.state = 0;
+                // this.isReady = false;
             },
+            // 获取数据
             setData: function () {  
                 var _this = this,
                     route = _this.$route,
@@ -187,9 +178,10 @@ define(['starbar', 'recorder'], function(starbar){
                     var cate = "read_word";
                     if(_this.nav==2) cate = "read_sentence";
                     //获取单词句子列表
-                    sendAjax(api.get_content, {category: cate, bookCatalogId: unit}, 'POST', function(res){
+                    sendAjax(api.get_content, {category: cate, bookCatalogId: unit}, 'GET', function(res){
                         _this.list = res.data.list;
                         c_key = res.data.key;
+                        // console.log(res.data.list);
                         if(_this.list[0]){
                             // 选择当前进度
                             for(var i=0; i<_this.list.length; i++){
@@ -207,10 +199,14 @@ define(['starbar', 'recorder'], function(starbar){
                     }, function(){//请求完成后
                          _this.state = 2;
                     });
+                    
+                    _this.setRecorder(); // 设置录音
+
                 }else{
                     _this.dataInit();
                 }
             },
+            // 转换数据格式
             transData: function(data){
                 this.content = {
                     en: data.words,
@@ -223,17 +219,20 @@ define(['starbar', 'recorder'], function(starbar){
                         fluency: data.fluency_score
                     },
                     audio_url: data.audio_url,
-                    record_url: data.record_url
+                    record_url: data.record_url,
+                    content: data.content
                 }
             },
+            // 提交
             submit: function() {
                 var _this = this;
-                console.log(_this.list)
+                // console.log(_this.list)
                 sendAjax(api.submit_record, {data: JSON.stringify(_this.list)}, "POST", function(res){
                     _this.state = 4;
                     _this.$router.push({name: "result", query: _this.$route.query});
                 });
             },
+            // 播放原音
             playOrigin: function() {
                 if(!this.content.audio_url) {
                     msgInfo("暂无原音");
@@ -262,34 +261,96 @@ define(['starbar', 'recorder'], function(starbar){
                     this.isPlayRecord = true;
                 }
             },
-            // 录音
-            recording: function() {
+            setRecorder: function(readyCallback) {
+                var _this = this;
+                recorder = new AudioRecorder({
+                    baseUrl: 'static/js/recorder/',
+                    uploadUrl: api.post_record,
+                    onSuccess: function(res){
+                        layer.close(waitResult);
+                        _this.isChecking = false;
+                        if( res && res.state == 'ok' ){
+                            var rd = res.data,
+                                tl = _this.list[_this.index];
+                            tl.key = rd.key;
+                            tl.record_url = rd.recordUrl;
+                            tl.total_score = rd.totalScore;
+                            tl.integrity_score = rd.integrityScore||0;
+                            tl.fluency_score = rd.fluencyScore||0;
+                            tl.accuracy_score = rd.accuracyScore||0;
+                            tl.content = rd.content.replace(/</g,"&lt;").replace(/>/g, "&gt;");
+                            _this.transData(tl);
+                        }else{
+                            msgClose({content: res.msg||"测评失败，请重试"});
+                        }
+                    },
+                    onReady: function() {
+                        _this.isReady = true;
+                        readyCallback && readyCallback();
+                    },
+                    onStart: function() {
+                    
+                    },
+                    onError: function(res){
+                        msgClose({content: res||"当前无法测评", time: 3000});
+                        _this.isReady = false;
+                    }
+                });
+            },
+            startRecord: function() {
                 var _this = this,
                     ls = _this.list;
+                var record = JSON.parse(JSON.stringify(ls[_this.index]));
+                // record.category = "read_sentence"; // 只检验句子类型
+                record.key = c_key;
+                recorder.start( record );
+                _this.isRecording = true;
+                _this.state = 3;
+                // 限制录音时间
+                setTimeout(function(){
+                    if(_this.isRecording) {
+                        _this.isRecording = false;
+                        recorder.stop();
+                    }
+                }, ls[_this.index].time_len*1000||5*1000);
+            },
+            // 录音
+            recording: function() {
+                var _this = this;
                 if(_this.isRecording) {
                     // 停止录音
                     recorder.stop();
                     _this.isRecording = false;
+                    waitResult = layer.msg('正在测评...', {icon: 16, time:10*1000});
+                    _this.isChecking = true;
                 }else{
                     // 开始录音
-                    _this.isRecording = true;
-                    _this.state = 3;
-                    var record = JSON.parse(JSON.stringify(ls[_this.index]));
-                    record.category = "read_sentence"; // 只检验句子类型
-                    record.key = c_key;
-                    recorder.start( record );
-                    // 限制录音时间
-                    setTimeout(function(){
-                        if(_this.isRecording) {
-                            _this.isRecording = false;
-                            recorder.stop();
+                    if(recorder.type=="h5"){
+                        _this.isReady ? _this.startRecord() : _this.setRecorder(_this.startRecord);
+                    }else{
+                        if(_this.isReady) {
+                            _this.startRecord();
+                        }else{
+                            waitReady = layer.open({
+                                content: "正在调用麦克风，请选择允许，并稍等...",
+                                title: " ",
+                                shade: 0,
+                                btn: false,
+                                resize: false,
+                                area: 'auto',
+                                skin: "msg-close"
+                            });
                         }
-                    }, ls[_this.index].time_len*1000||5*1000);
+                    }
+                    
                 }
 
             },
             // 换页
             pagin: function(d) {
+                if(this.isChecking) {
+                    return false;
+                }
                 if(this.isRecording) {
                     msgClose({
                         content: "请稍等，跟读测评中~~~"

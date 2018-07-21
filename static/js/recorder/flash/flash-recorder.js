@@ -12,9 +12,12 @@ function FlashRecorder(baseUrl, onReady, config) {
 	var sampleRate = config && config.sampleRate ?  config.sampleRate : 16000;
 	var numChannels = config && config.channels ? config.channels : 1;
 	// removes the flash container, if exists
-    $('body').find('#flashObject').remove();
+    // $('body').find('#flashObject').remove();
     // adds the flash container
-    $('body').append('<div id="flashObject"></div>');
+	if(!$('#flashObject').length){
+		$('body').append('<div id="flashObject"></div>');
+	}
+    
     Wami.setup({
     	id: 'flashObject', 
     	swfUrl: baseUrl + "/flash/Wami.swf", 

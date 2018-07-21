@@ -2,8 +2,8 @@
 // api
 function getApi(name) {
     var host = "http://139.129.252.49:8080/";
+    // var host = "http://192.168.0.119:821/";
     var api = {
-        host: "http://139.129.252.49:8080",
         get_book: host+"persubmat",
         get_menu: host+"catalog",
         get_content: host+"orals",
@@ -37,13 +37,21 @@ require.config({
         starbar: "modules/starbar",
         layer: "layer/layer",
         jquery: "jquery-2.1.1.min",
-        recorder: "recorder/recorder"
+        xdomain: "jquery.xdomainrequest.min",
+        recorder: "recorder/recorder",
+        h5Rcorder: "recorder/h5/h5-recorder",
+        flashRecorder: "recorder/flash/flash-recorder",
+        swfobject: "recorder/flash/swfobject",
+        wami: "recorder/flash/wami"
     },
     shim: {
         layer: {
 　　　　　　deps: ['jquery'],
 　　　　　　exports: "layer"
-　　　　}
+　　　　},
+        xdomain: {
+            deps: ['jquery']
+        }
     }
 });
 
@@ -62,11 +70,13 @@ require(["jquery"], function(){
 
 // ajax
 function sendAjax(url, data, type, callback, beforeSend, complete) {
-    require(["layer", "jquery"], function(){
+    require(["layer", "jquery", "xdomain"], function(){
+        jQuery.support.cors = true; //ie跨域问题
         $.ajax({
             url: url,
             data: data,
             type: type,
+            dataType: 'json',
             beforeSend: function() {
                 beforeSend && beforeSend();
             },
@@ -81,7 +91,8 @@ function sendAjax(url, data, type, callback, beforeSend, complete) {
                 }
             },
             error: function(xhr,status,error) {
-                layer.msg(error||"网络异常", {icon: 2, time: 1500});
+                console.log(xhr,status,error);
+                layer.msg("服务器异常", {icon: 2, time: 1500});
             }
         });
     });
@@ -90,16 +101,13 @@ function sendAjax(url, data, type, callback, beforeSend, complete) {
 
 require(['header', 'tree'], function(header, tree){
 
-    // var Start = resolve => require(['start'], resolve), //必须是AMD风格的模块
-    //     Record  = resolve => require(['record'], resolve),
-    //     Result = resolve => require(['result'], resolve);
-
     var Start = function(resolve) {require(['start'], resolve)},
         Record = function(resolve) {require(['record'], resolve)},
         Result = function(resolve) {require(['result'], resolve)};
 
     var routes = [
         { path: '/' , redirect: '/word'},
+        // { path: '/'},
         { path: '/word'},
         { path: '/sentence' },
         { path: '/:nav/start', name: "start", component: Start},
@@ -164,16 +172,17 @@ require(['header', 'tree'], function(header, tree){
         },
         watch: {
             '$route': function(to, from) {
-                // console.log(to, from)
+                // console.log(to, from);
                 var tq = to.query, fq = from.query, isSameBook = false;
                 if(tq.mater==fq.mater&&tq.sub==fq.sub&&tq.fasc==fq.fasc&&tq.per==fq.per) {
                     isSameBook = true;
                 }
-                this.setData(isSameBook);
+                this.setData({isSameBook: isSameBook});
             }
         },
         created: function() {
-            this.setData();
+            // console.log(this.$route);
+            this.setData({isFirst: this.$route.path=="/word"});
         },
         computed: {
             isMenu: function() {
@@ -182,7 +191,7 @@ require(['header', 'tree'], function(header, tree){
         },
         methods: {
             //  根据路由获取、设置数据
-            setData: function(isSameBook){
+            setData: function(ops){
                 var _this = this,
                     route = _this.$route,
                     query = route.query,
@@ -193,55 +202,75 @@ require(['header', 'tree'], function(header, tree){
                 _this.nav.navItems.forEach(function(v){
                     if(v.to==nav_path) _this.nav.active = v.id;
                 });
-               
-                // 左侧目录
-                if(query.per&&query.sub&&query.fasc&&query.mater){
-                    var book_params = {
-                        matercode: query.mater,
-                        percode: query.per,
-                        subcode: query.sub,
-                        fasccode: query.fasc
+
+                var isSameBook = ops.isSameBook||false,
+                    isFirst = ops.isFirst||false;
+                
+                // 存在左侧菜单时
+                if(_this.isMenu) { 
+
+                    var book_params = {};
+                    var isGotBook = Boolean(query.per&&query.sub&&query.fasc&&query.mater);
+                    // 教材参数
+                    if(isGotBook){
+                        book_params = {
+                            matercode: query.mater,
+                            percode: query.per,
+                            subcode: query.sub,
+                            fasccode: query.fasc
+                        }
                     }
 
-                    // 如果刷新，则重加载教材
-                    if(JSON.stringify(_this.book.bookItems) == "{}") {
+                    // 获取教材
+                    if(isSameBook&&JSON.stringify(_this.book.bookItems)!="{}") {
+                        _this.book.bookName = isGotBook?_this.getBookName():"选择教材";
+                        _this.book.isOpen = !isGotBook;
+                    }else{
                         sendAjax(api.get_book, book_params, 'GET', function(res){
                             _this.book.bookItems = res.data;
-                            _this.book.bookName = _this.getBookName();
-                            _this.book.isOpen = false;
+                            _this.book.bookName = isGotBook?_this.getBookName():"选择教材";
+                            _this.book.isOpen = !isGotBook;
+
+                            // 首页
+                            if(isFirst){
+                                var auto_book = _this.getBook();
+                                var auto_book_params = {
+                                    matercode: auto_book.mater,
+                                    percode: auto_book.per,
+                                    subcode: auto_book.sub,
+                                    fasccode: auto_book.fasc
+                                }
+                                sendAjax(api.get_menu, auto_book_params, 'GET', function(res){
+                                    var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
+                                    _this.unit.menu = tree;
+                                    _this.activeNode();
+                                });
+                            }
+
                         });
-                    }else{
-                        _this.book.bookName = _this.getBookName();
                     }
 
-                    // 教材改变时，获取目录，并激活目录
-                    var u_id = query.unit || "";
-                    if(isSameBook&&_this.unit.menu.length){
-                        _this.activeNode(u_id);
+                    // 获取目录
+                    if(isGotBook) {
+                        if(isSameBook&&_this.unit.menu.length){
+                            query.unit&&_this.activeNode(query.unit);
+                        }else{
+                            sendAjax(api.get_menu, book_params, 'GET', function(res){
+                                var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
+                                _this.unit.menu = tree;
+                                _this.book.isOpen = false;
+                                query.unit&&_this.activeNode(query.unit);
+                            });
+                        }
                     }else{
-                        sendAjax(api.get_menu, book_params, 'GET', function(res){
-                            var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
-                            _this.unit.menu = tree;
-                            _this.book.isOpen = false;
-                            _this.activeNode(u_id);
-                        });
-                    }
-                    
-                }else{
-                    // 获取教材
-                    if(JSON.stringify(_this.book.bookItems) == "{}") {
-                        sendAjax(api.get_book, {}, 'GET', function(res){
-                            _this.book.bookItems = res.data;
-                            _this.book.bookName = "选择教材";
-                            _this.book.isOpen = true;
-                            _this.unit.menu = [];
-                        });
-                    }else{
+                        _this.unit.menu = [];
+                        _this.unit.activeId = "";
                         _this.book.bookName = "选择教材";
                         _this.book.isOpen = true;
-                        _this.unit.menu = [];
                     }
+
                 }
+
 
             },
             // 获取教材数据
@@ -370,13 +399,13 @@ require(["layer"], function(){
             content: ops.content || " ",
             icon: ops.icon || 7,
             title: " ",
-            area: ops.width || '284px',
+            area: ops.width || 'auto',
             shade: 0,
             btn: false,
             skin: "msg-close",
             resize: false,
             move: false,
-            time: ops.time || 2000
+            time: ops.time || 3000
         });
     }
 
@@ -398,4 +427,9 @@ function readTree(tree, callback) {
             readTree(tree[i].children, callback);
         }
     }
+}
+
+// 将字符转换成Html
+function strToHtml(str) {
+    return str?str.replace(/&lt;/g,"<").replace(/&gt;/g, ">"):"";
 }

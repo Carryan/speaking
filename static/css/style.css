@@ -3,6 +3,7 @@ body { font-family: 'Microsoft YaHei'; font-size: 14px; line-height: 1; padding:
 ul, ol { list-style:none;padding: 0;}
 table { border-collapse: collapse; border-spacing: 0;}
 input, select { vertical-align: middle;}
+img { border: none;}
 
 a {
     text-decoration: none;
@@ -121,6 +122,7 @@ a {
 }
 
 #speaking_app {
+    background-color: #d4f4fe;
     background: linear-gradient(to bottom, #d4f4fe, #d4f4fe 750px, #6FBE44 100px, #6FBE44 );
 }
 .speaking-container {
@@ -162,7 +164,7 @@ a {
     position: relative;
 }
 .speaking-container .position a + a:before {
-    content: "<";
+    content: ">";
     display: block;
     position: absolute;
     top: 2px;
@@ -187,6 +189,11 @@ a {
     cursor: pointer;
     border-radius: 5px;
     user-select: none;
+    -webkit-user-select: none;
+    background-color: #e6e6e6;
+}
+.speaking-content .nav-bar .nav-item.router-link-active {
+    background-color: #3dadef;
 }
 .speaking-content .nav-bar .nav-item + .nav-item {
     margin-left: 22px;
@@ -194,7 +201,7 @@ a {
 .speaking-content .nav-bar .nav-item > span {
     width: 130px;
     font-size: 20px;
-    color: #fff;
+    color: #666;
     text-shadow: 0 3px 6px rgba(0, 0, 0, .16);
     display: inline-block;
     vertical-align: middle;
@@ -203,31 +210,20 @@ a {
 }
 .speaking-content .nav-bar .nav-item.router-link-active > span {
     width: 155px;
+    color: #fff;
 }
 .speaking-content .nav-bar .nav-item > span > small {
     font-size: 12px;
     opacity: .5;
 }
-.speaking-content .nav-bar .nav-item.word {
-    background-color: #3DADEF;
-}
 .speaking-content .nav-bar .nav-item.word > .sp-icon {
     background-position: 0 -170px;
-}
-.speaking-content .nav-bar .nav-item.sentence {
-    background-color: #87E082;
 }
 .speaking-content .nav-bar .nav-item.sentence > .sp-icon {
     background-position: -56px -168px;
 }
-.speaking-content .nav-bar .nav-item.record {
-    background-color: #FCB040;
-}
 .speaking-content .nav-bar .nav-item.record > .sp-icon {
     background-position: -112px -172px;
-}
-.speaking-content .nav-bar .nav-item.err {
-    background-color: #FF4E70;
 }
 .speaking-content .nav-bar .nav-item.err > .sp-icon {
     background-position: -166px -171px;
@@ -319,11 +315,10 @@ a {
 .speaking-main .left-menu .book .items-wrap .item select {
     width: 111px;
     height: 28px;
-    line-height: 28px;
-    padding: 4px;
+    padding: 2px;
     margin-bottom: 12px;
+    border: 1px solid #C5C5C5;
     border-radius: 6px;
-    border-color: #C5C5C5;
     color: #666;
 }
 .speaking-main .left-menu .book .bottom-side {
@@ -353,7 +348,7 @@ a {
     width: 16px;
     height: 16px;
     text-align: center;
-    line-height: 14px;
+    line-height: 13px;
     border-radius: 8px;
     position: absolute;
     left: -26px;
@@ -361,6 +356,9 @@ a {
     background-color: #fff;
     cursor: pointer;
     user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
 }
 .v-tree .item {
     margin-bottom: 10px;
@@ -812,8 +810,11 @@ body .comfirm-dialog .layui-layer-btn {
     top: 50%;
     margin-top: -8px;
 }
+.msg-close.layui-layer-dialog {
+    min-width: auto;
+}
 body .msg-close .layui-layer-content {
-    padding: 10px 10px 10px 20px;
+    padding: 10px 48px 10px 20px;
 }
 
 #flashObject {
@@ -822,6 +823,7 @@ body .msg-close .layui-layer-content {
     left: 50%;
     margin-top: -68px;
     margin-left: -104px;
+    z-index: 9999;
 }
 #originVoice, #recordVoice {
     display: none;

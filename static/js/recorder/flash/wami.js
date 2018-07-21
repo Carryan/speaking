@@ -143,7 +143,7 @@ Wami.setup = function (options) {
     }
 
     function checkSecurity() {
-
+        
         if( _options.audioParams ){
             Wami.setSettings();
         }

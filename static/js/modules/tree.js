@@ -17,19 +17,10 @@ define(function(){
             }
         },
         created: function(){
-            // 层层打开激活项
-            if(this.model.id==this.activeid) {
-                var p =  this.$parent;
-                parentOpen(p);
-            }
-            function parentOpen(p) {
-                if(p.model){
-                    p.open = true;
-                    return parentOpen(p.$parent);
-                }else{
-                    return ;
-                }
-            }
+            this.openActive();
+        },
+        updated: function(){
+            this.openActive();
         },
         computed: {
             isFolder: function () {
@@ -40,6 +31,21 @@ define(function(){
             }
         },
         methods: {
+            openActive: function() {
+                // 层层打开激活项
+                if(this.model.id==this.activeid) {
+                    var p =  this.$parent;
+                    parentOpen(p);
+                }
+                function parentOpen(p) {
+                    if(p.model){
+                        p.open = true;
+                        return parentOpen(p.$parent);
+                    }else{
+                        return ;
+                    }
+                }
+            },
             toggle: function () {
                 if (this.isFolder) {
                     this.open = !this.open;

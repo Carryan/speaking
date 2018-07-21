@@ -206,6 +206,19 @@
 
             function onMediaError(err) {
                 console.log(err.name, err.message);
+                var errMsg;
+                switch (err.name) {
+                    case "NotSupportedError":
+                        errMsg = "当前页面不支持使用麦克风";
+                        break;
+                    case "NotFoundError":
+                        errMsg = "找不到媒体设备";
+                        break;
+                    default:
+                        errMsg = err.message;
+                        break;
+                }
+                config.onError(errMsg);
             }
             try{
                 if ( navigator.mediaDevices.getUserMedia || 
