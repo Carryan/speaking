@@ -361,16 +361,16 @@ require(["layer"], function(){
     
     // 提示框
     window.msgSuccess = function (msg) {
-        layer.msg(msg||"操作成功", {icon: 1, time: 2000}); 
+        layer.msg(msg||"操作成功", {icon: 1, time: 1500}); 
     }
     window.msgError = function (msg) {
-        layer.msg(msg||"操作失败", {icon: 2, time: 2000}); 
+        layer.msg(msg||"操作失败", {icon: 2, time: 1500}); 
     }
     window.msgWarning = function (msg) {
-        layer.msg(msg||"警告", {icon: 7, time: 2000}); 
+        layer.msg(msg||"警告", {icon: 7, time: 1500}); 
     }
     window.msgInfo = function (msg) {
-        layer.msg(msg||"提示", {icon: 6, time: 2000}); 
+        layer.msg(msg||"提示", {icon: 6, time: 1500}); 
     }
 
     // 询问框
@@ -422,7 +422,7 @@ function filterArray(arr, key, val) {
 // 遍历对象，并回调
 function readTree(tree, callback) {
     for (var i = 0; i < tree.length; i++) {
-        var c = callback(tree[i]);
+        callback(tree[i]);
         if(tree[i].children) {
             readTree(tree[i].children, callback);
         }

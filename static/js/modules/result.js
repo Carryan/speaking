@@ -54,9 +54,9 @@ define(['starbar', 'recorder'], function(starbar){
                         '<div class="empty-tip" v-if="!cur_list.length&&state==2">暂无错题</div>'+
                     '</div>'+
                     '<div class="bottom" v-if="nav!=4">'+
-                        '<a href="javascript:;" class="page-btn" v-show="cur_page>1" @click="page(-1)">上一课</a>'+
-                        '<a href="javascript:;" class="return-btn" @click="back">返回</a>'+
-                        '<a href="javascript:;" class="page-btn" v-show="cur_page<total_pages" @click="page(1)">下一课</a>'+
+                        '<a href="javascript:;" class="page-btn" v-if="prev" @click="changeCourse(prev)">上一课</a>'+
+                        '<a href="javascript:;" class="return-btn" v-if="nav==3" @click="back">返回</a>'+
+                        '<a href="javascript:;" class="page-btn" v-if="next" @click="changeCourse(next)">下一课</a>'+
                     '</div>'+
                     '<audio id="originVoice" autoplay="autoplay"></audio>'+
                     '<audio id="recordVoice" autoplay="autoplay"></audio>'+
@@ -95,17 +95,49 @@ define(['starbar', 'recorder'], function(starbar){
                 return Math.ceil(this.list.length/this.list_len);
             },
             list_len: function() {
-                if(this.nav==1||this.$route.query.category=="read_word") {
-                    return 5;
+                return this.list.length;
+            },
+            prev: function() {
+                if(this.$route.name=="result"){
+                    var unit = this.$parent.unit;
+                    var c_node, p_node, index;
+                    readTree(unit.menu, function(node){
+                        if(node.id==unit.activeId) c_node = node;
+                    });
+                    c_node && readTree(unit.menu, function(node){
+                        if(node.id==c_node.pid) p_node = node;
+                    });
+                    index = p_node?p_node.children.indexOf(c_node):-1;
+                    return index>0 ? p_node.children[index-1] : false;
                 }else{
-                    return 4;
+                    return false;
+                }
+            },
+            next: function() {
+                if(this.$route.name=="result"){
+                    var unit = this.$parent.unit;
+                    var c_node, p_node, index;
+                    readTree(unit.menu, function(node){
+                        if(node.id==unit.activeId) c_node = node;
+                    });
+                    c_node && readTree(unit.menu, function(node){
+                        if(node.id==c_node.pid) p_node = node;
+                    });
+                    index = p_node?p_node.children.indexOf(c_node):-1;
+                    return (index>-1&&index<p_node.children.length-1) ? p_node.children[index+1] : false;
+                }else{
+                    return false;
                 }
             }
         },
         watch: {
             '$route': function(to, from) {
                 var n = to.name;
-                if(n=="result"||n=="record_detail"||n=="err") this.setData();
+                if(n=="result"||n=="record_detail"||n=="err"){
+                    this.setData();
+                }else{
+                    this.cur_list = [];
+                }
             },
             'isReady': function(v) {
                 v && waitReady && layer.close(waitReady);
@@ -164,7 +196,7 @@ define(['starbar', 'recorder'], function(starbar){
                         c_key = res.data.key;
                         _this.getCurList();
                         _this.init();
-                        _this.setRecorder(); //录音器
+                        _this.list.length&&_this.setRecorder(); //录音器
                     }, function(){//请求发送前
                         _this.state = 1;
                     }, function(){//请求完成后
@@ -223,7 +255,17 @@ define(['starbar', 'recorder'], function(starbar){
                         }
                         originAudio.onerror = function() {
                             // 音频失效
-                            console.log("音频失效");
+                            $.ajax({
+                                url: api.get_audio,
+                                type: 'GET',
+                                data: {id: _this.cur_list[index].orals_id},
+                                success: function(res) {
+                                    if(res.state=="ok") {
+                                        originAudio.setAttribute('src', res.data.audio_url);
+                                        v.play_audio = true;
+                                    }
+                                }
+                            });
                         }
                     }else{
                         if(v.play_audio) v.play_audio = false;
@@ -231,23 +273,37 @@ define(['starbar', 'recorder'], function(starbar){
                 });
             },
             playRecord: function(index) {
-                var url = this.cur_list[index].record_url
-                if(!url) return false;
-                this.cur_list.forEach(function(v, i){
-                    if(i==index){
-                        recordAudio.setAttribute('src', url);
-                        v.play_record = true;
-                        recordAudio.onended = function() {
-                            v.play_record = false;
+                var url = this.cur_list[index].record_url;
+                var _this = this;
+                if(!url){
+                    msgInfo("您还没有录音");
+                }else{
+                    this.cur_list.forEach(function(v, i){
+                        if(i==index){
+                            recordAudio.setAttribute('src', url);
+                            v.play_record = true;
+                            recordAudio.onended = function() {
+                                v.play_record = false;
+                            }
+                            recordAudio.onerror = function() {
+                                // 音频失效
+                                $.ajax({
+                                    url: api.get_audio,
+                                    type: 'GET',
+                                    data: {id: _this.cur_list[index].orals_id},
+                                    success: function(res) {
+                                        if(res.state=="ok") {
+                                            recordAudio.setAttribute('src', res.data.record_url);
+                                            v.play_record = true;
+                                        }
+                                    }
+                                });
+                            }
+                        }else{
+                            if(v.play_record) v.play_record = false;
                         }
-                        recordAudio.onerror = function() {
-                            // 音频失效
-                            console.log("音频失效");
-                        }
-                    }else{
-                        if(v.play_record) v.play_record = false;
-                    }
-                });
+                    });
+                }
             },
             setRecorder: function(readyCallback, index) {
                 var _this = this;
@@ -309,6 +365,8 @@ define(['starbar', 'recorder'], function(starbar){
                     if(cl.recording) {
                         cl.recording = false;
                         recorder.stop();
+                        _this.isChecking = true;
+                        waitResult = layer.msg('正在测评...', {icon: 16, time:10*1000});
                     }
                 }, cl.time_len*1000||5*1000);
             },
@@ -346,9 +404,14 @@ define(['starbar', 'recorder'], function(starbar){
                     }
                 }
             },
+            // 换页, d: -1上一页, 1下一页
             page: function(d) {
                 this.cur_page = this.cur_page+d;
                 this.getCurList();
+            },
+            // 换课
+            changeCourse: function(node) {
+                this.$parent.selectUnit(node);
             }
         }
     }

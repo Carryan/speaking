@@ -22,8 +22,8 @@ define(['starbar', 'recorder'], function(starbar){
                         '<p v-if="isWord" class="word">{{content.en}}</p>'+
                         '<p v-else class="sentence" v-html="strToHtml(content.content)||content.en"></p>'+
                         '<p class="pronunciation" v-if="isWord" v-show="content.grade">'+
-                            // '[<span>{{content.pronounce}}</span>]'+
-                            '[<span v-html="strToHtml(content.content)"></span>]'+
+                            '[<span>{{content.symbol}}</span>]'+
+                            // '[<span v-html="strToHtml(content.content)"></span>]'+
                         '</p>'+
                         '<p v-if="!isWord" class="translate">{{content.cn}}</p>'+
                         '<a href="javascript:;" class="prev-btn sp-icon"'+
@@ -134,10 +134,32 @@ define(['starbar', 'recorder'], function(starbar){
         },
         watch: {
             '$route': function(to, from) {
-                if(to.name=="start") this.setData();
+                if(to.name=="start"){
+                    this.setData();
+                }else{
+                    this.dataInit();
+                }
             },
             'isReady': function(v) {
                 v && waitReady && layer.close(waitReady);
+            }
+        },
+        beforeRouteUpdate: function(to, from, next) {
+            if(this.state==3&&this.state!=4) {
+                comfirmDialog({
+                    content: "您还没有提交，离开将不保存成绩！",
+                    btn: ["我再想想", "坚持离开"],
+                    yes: function(index, layero) {
+                        next(false);
+                        layer.close(index);
+                    },
+                    btn2: function(index, layero) {
+                        next();
+                        layer.close(index);
+                    }
+                });
+            }else{
+                next();
             }
         },
         beforeRouteLeave: function(to, from, next) {
@@ -183,14 +205,16 @@ define(['starbar', 'recorder'], function(starbar){
                         c_key = res.data.key;
                         // console.log(res.data.list);
                         if(_this.list[0]){
-                            // 选择当前进度
-                            for(var i=0; i<_this.list.length; i++){
-                                if(!_this.list[i].total_score) {
-                                    _this.index = i;
-                                    break;
-                                }
-                            }
+                            // 选择当前进度，从第一个未测单词开始
+                            // for(var i=0; i<_this.list.length; i++){
+                            //     if(!_this.list[i].total_score) {
+                            //         _this.index = i;
+                            //         break;
+                            //     }
+                            // }
                             _this.transData(_this.list[_this.index]);
+                            // 设置录音
+                            _this.setRecorder(); 
                         } else{
                             _this.dataInit();
                         }
@@ -199,8 +223,6 @@ define(['starbar', 'recorder'], function(starbar){
                     }, function(){//请求完成后
                          _this.state = 2;
                     });
-                    
-                    _this.setRecorder(); // 设置录音
 
                 }else{
                     _this.dataInit();
@@ -220,13 +242,13 @@ define(['starbar', 'recorder'], function(starbar){
                     },
                     audio_url: data.audio_url,
                     record_url: data.record_url,
-                    content: data.content
+                    content: data.content,
+                    symbol: data.symbol
                 }
             },
             // 提交
             submit: function() {
                 var _this = this;
-                // console.log(_this.list)
                 sendAjax(api.submit_record, {data: JSON.stringify(_this.list)}, "POST", function(res){
                     _this.state = 4;
                     _this.$router.push({name: "result", query: _this.$route.query});
@@ -301,7 +323,6 @@ define(['starbar', 'recorder'], function(starbar){
                 var _this = this,
                     ls = _this.list;
                 var record = JSON.parse(JSON.stringify(ls[_this.index]));
-                // record.category = "read_sentence"; // 只检验句子类型
                 record.key = c_key;
                 recorder.start( record );
                 _this.isRecording = true;
@@ -311,6 +332,8 @@ define(['starbar', 'recorder'], function(starbar){
                     if(_this.isRecording) {
                         _this.isRecording = false;
                         recorder.stop();
+                        waitResult = layer.msg('正在测评...', {icon: 16, time:10*1000});
+                        _this.isChecking = true;
                     }
                 }, ls[_this.index].time_len*1000||5*1000);
             },

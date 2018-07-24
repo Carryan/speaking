@@ -5,7 +5,8 @@ define(function(){
         template: '<li :class="{hasFolder: isFolder}">'+
                     '<div class="item" :class="{active: isActive}" @click="nodeClick(model)">'+
                         '<span v-if="isFolder" @click.stop="toggle" class="folder-icon">{{ open? "-" : "+" }}</span>'+
-                        '<span class="title">{{ model.name }}</span>'+
+                        '<span v-if="isFolder" class="title" @click.stop="toggle">{{ model.name }}</span>'+
+                        '<span v-else class="title">{{ model.name }}</span>'+
                     '</div>'+
                     '<ul v-show="open" v-if="isFolder" class="children">'+
                         '<tree-item v-for="(m, i) in model.children" :key="i" :model="m" :activeid="activeid" @node-click="outClick"></tree-item>'+

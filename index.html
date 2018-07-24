@@ -5,14 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="renderer" content="webkit" />
     <meta http-equiv="Access-Control-Allow-Origin" content="*">
     <title>口语测评</title>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 
 <body>
+    
 
     <div id="speaking_app">
+        <!--[if lte IE 8]>
+            <h2 style="text-align:center">抱歉，浏览器版本过低看不到效果。请升级或更换浏览器。</h2>
+        <![endif]-->
 
         <speaking-header :logo="header.logo" :menu="header.menu" v-cloak></speaking-header>
 
