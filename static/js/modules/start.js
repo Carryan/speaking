@@ -22,8 +22,8 @@ define(['starbar', 'recorder'], function(starbar){
                         '<p v-if="isWord" class="word">{{content.en}}</p>'+
                         '<p v-else class="sentence" v-html="strToHtml(content.content)||content.en"></p>'+
                         '<p class="pronunciation" v-if="isWord" v-show="content.grade">'+
-                            '[<span>{{content.symbol}}</span>]'+
-                            // '[<span v-html="strToHtml(content.content)"></span>]'+
+                            // '[<span>{{content.symbol}}</span>]'+
+                            '[<span v-html="strToHtml(content.content)"></span>]'+
                         '</p>'+
                         '<p v-if="!isWord" class="translate">{{content.cn}}</p>'+
                         '<a href="javascript:;" class="prev-btn sp-icon"'+
@@ -301,6 +301,7 @@ define(['starbar', 'recorder'], function(starbar){
                             tl.fluency_score = rd.fluencyScore||0;
                             tl.accuracy_score = rd.accuracyScore||0;
                             tl.content = rd.content.replace(/</g,"&lt;").replace(/>/g, "&gt;");
+                            // console.log(res)
                             _this.transData(tl);
                         }else{
                             msgClose({content: res.msg||"测评失败，请重试"});
@@ -353,7 +354,7 @@ define(['starbar', 'recorder'], function(starbar){
                     }else{
                         if(_this.isReady) {
                             _this.startRecord();
-                        }else{
+                        }else if(Wami.showFlash){
                             waitReady = layer.open({
                                 content: "正在调用麦克风，请选择允许，并稍等...",
                                 title: " ",
@@ -362,6 +363,14 @@ define(['starbar', 'recorder'], function(starbar){
                                 resize: false,
                                 area: 'auto',
                                 skin: "msg-close"
+                            });
+                        }else{
+                            comfirmDialog({
+                                content: "请确保您已插入麦克风。如果仍有问题，可重启浏览器试试。",
+                                btn: ["我已插入麦克风"],
+                                yes: function(index, layero){
+                                    _this.setRecorder();
+                                }
                             });
                         }
                     }

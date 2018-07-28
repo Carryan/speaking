@@ -793,7 +793,7 @@ body .comfirm-dialog .layui-layer-btn {
 }
 .comfirm-dialog .layui-layer-btn a {
     height: 32px;
-    line-height: 32px;
+    line-height: 30px;
     border-radius: 16px;
     color: #999;
 }

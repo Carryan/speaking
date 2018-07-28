@@ -17,7 +17,7 @@ function FlashRecorder(baseUrl, onReady, config) {
 	if(!$('#flashObject').length){
 		$('body').append('<div id="flashObject"></div>');
 	}
-    
+	
     Wami.setup({
     	id: 'flashObject', 
     	swfUrl: baseUrl + "/flash/Wami.swf", 

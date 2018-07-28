@@ -1,5 +1,8 @@
 var Wami = window.Wami || {};
 
+Wami.showFlash = false;
+Wami.allowMic = false;
+
 // Returns a (very likely) unique string with of random letters and numbers
 Wami.createID = function () {
     return "wid" + ("" + 1e10).replace(/[018]/g, function (a) {
@@ -18,6 +21,7 @@ Wami.nameCallback = function (cb, cleanup) {
         cb.apply(null, arguments);
     };
     var named = "Wami._callbacks['" + id + "']";
+    
     return named;
 };
 
@@ -147,13 +151,16 @@ Wami.setup = function (options) {
         if( _options.audioParams ){
             Wami.setSettings();
         }
-
+console.log("------------------");
         var settings = Wami.getSettings();
+        // 检测是否允许 麦克风
         if (settings.microphone.granted) {
+            Wami.allowMic = true;
             _options.onReady();
         } else {
             // Show any Flash settings panel you want:
             // http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/system/SecurityPanel.html
+            Wami.allowMic = false;
             Wami.showSecurity("privacy", "Wami.show", Wami
                     .nameCallback(_options.onSecurity), Wami
                     .nameCallback(_options.onError));
@@ -187,7 +194,7 @@ Wami.setup = function (options) {
         // This is the minimum size due to the microphone security panel
         Wami.swfobject.embedSWF(_options.swfUrl, id, 214, 137, version, null,
                 flashVars, params);
-
+                
         // Without this line, Firefox has a dotted outline of the flash
         Wami.swfobject.createCSS("#" + id, "outline:none");
     }
@@ -206,11 +213,12 @@ Wami.setup = function (options) {
 
         var fn = Wami.nameCallback(function () {
             var swf = document.getElementById(id);
+            // console.log(swf.getSettings());
             Wami._remembered = swf.getSettings().microphone.granted;
             Wami.swfobject.removeSWF(id);
             eval(finishedfn + "()");
         });
-
+        
         embedWamiSWF(id, fn);
     }
 
@@ -250,11 +258,13 @@ Wami.setup = function (options) {
 
             var augmentedfn = Wami.nameCallback(function () {
                 checkRemembered(finishedfn);
-                container.style.cssText = "position: absolute;";
+                container.style.cssText = "position: absolute; top: -1000px;";
+                // console.log("setting----------");
             });
 
             container.style.cssText = "position: absolute; z-index: 99999";
 
+            Wami.showFlash = true;
             recorder.showSecurity(panel, startfn, augmentedfn, failfn);
         };
 

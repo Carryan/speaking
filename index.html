@@ -68,12 +68,13 @@
                                         {{item.subname}}
                                         <input type="radio" name="book_sub" 
                                             :value="item.subcode"
+                                            @change="menuChange('sub')"
                                             v-model="book.bookItems.sub.selected">
                                     </label>
                                 </div>
                                 <label>教版：</label>
                                 <div class="item">
-                                    <select name="book_mater" v-model="book.bookItems.mater.selected">
+                                    <select name="book_mater" @change="menuChange('mater')" v-model="book.bookItems.mater.selected">
                                         <option v-for="item in book.bookItems.mater.list" :value="item.matercode">{{item.matername}}</option>
                                     </select>
                                 </div>
