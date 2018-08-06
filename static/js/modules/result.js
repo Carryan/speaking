@@ -152,7 +152,6 @@ define(['starbar', 'recorder'], function(starbar){
                 localStorage.setItem("rtitle", this.rtitle);
             }
             
-            var _this = this;
             originAudio = document.getElementById('originVoice');
             recordAudio = document.getElementById('recordVoice');
             
@@ -256,7 +255,7 @@ define(['starbar', 'recorder'], function(starbar){
                         }
                         originAudio.onerror = function() {
                             // 音频失效
-                            $.ajax({
+                            _this.cur_list[index].orals_id && $.ajax({
                                 url: api.get_audio,
                                 type: 'GET',
                                 data: {id: _this.cur_list[index].orals_id},
@@ -288,7 +287,7 @@ define(['starbar', 'recorder'], function(starbar){
                             }
                             recordAudio.onerror = function() {
                                 // 音频失效
-                                $.ajax({
+                                _this.cur_list[index].orals_id && $.ajax({
                                     url: api.get_audio,
                                     type: 'GET',
                                     data: {id: _this.cur_list[index].orals_id},
@@ -388,7 +387,7 @@ define(['starbar', 'recorder'], function(starbar){
                         if(recorder.type=="h5"){
                            this.isReady ? this.startRecord(index) : this.setRecorder(this.startRecord, index);
                         }else{
-                            if(this.isReady) {
+                            if(this.isReady && Wami.allowMic) {
                                 this.startRecord(index);
                             }else if(Wami.showFlash){
                                 waitReady = layer.open({

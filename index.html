@@ -12,14 +12,45 @@
 </head>
 
 <body>
-    
+
+    <div class="header clearfix">
+        <div class="logo fl">
+            <a href="index.html">
+                <img src="static/images/logo.png" alt="logo">
+            </a>
+        </div>
+        <ul class="menu fl">
+            <li class="">
+                <a href="#">首页</a>
+            </li>
+            <li class="">
+                <a href="#">课堂资源</a>
+            </li>
+            <li class="">
+                <a href="#">知识案例</a>
+            </li>
+            <li class="">
+                <a href="#">实验视频</a>
+            </li>
+            <li class="">
+                <a href="#">组卷中心</a>
+            </li>
+            <li class="active">
+                <a href="index.html">口语测评</a>
+            </li>
+        </ul>
+        <div class="login fr">
+            <a href="javascript:;" class="login-btn">登录</a>
+        </div>
+    </div>
+
 
     <div id="speaking_app">
         <!--[if lte IE 8]>
             <h2 style="text-align:center">抱歉，浏览器版本过低看不到效果。请升级或更换浏览器。</h2>
         <![endif]-->
 
-        <speaking-header :logo="header.logo" :menu="header.menu" v-cloak></speaking-header>
+        <!-- <speaking-header :logo="header.logo" :menu="header.menu" v-cloak></speaking-header> -->
 
         <div class="speaking-container">
             <div class="clouds"></div>
@@ -49,27 +80,16 @@
                             <div class="items-wrap" v-if="book.bookItems.per">
                                 <label>学段：</label>
                                 <div class="item">
-                                    <label v-for="(item, index) in book.bookItems.per.list" 
-                                        :key="index" 
-                                        :class="{active: item.percode==book.bookItems.per.selected, disabled: !item.enabled}">
+                                    <label v-for="(item, index) in book.bookItems.per.list" :key="index" :class="{active: item.percode==book.bookItems.per.selected, disabled: !item.enabled}">
                                         {{item.pername}}
-                                        <input type="radio" name="book_per" 
-                                            :disabled="!item.enabled"
-                                            :value="item.percode"
-                                            @change="menuChange('per')" 
-                                            v-model="book.bookItems.per.selected">
+                                        <input type="radio" name="book_per" :disabled="!item.enabled" :value="item.percode" @change="menuChange('per')" v-model="book.bookItems.per.selected">
                                     </label>
                                 </div>
                                 <label>科目：</label>
                                 <div class="item">
-                                    <label v-for="(item, index) in book.bookItems.sub.list" 
-                                        :key="index" 
-                                        :class="{active: item.subcode==book.bookItems.sub.selected}">
+                                    <label v-for="(item, index) in book.bookItems.sub.list" :key="index" :class="{active: item.subcode==book.bookItems.sub.selected}">
                                         {{item.subname}}
-                                        <input type="radio" name="book_sub" 
-                                            :value="item.subcode"
-                                            @change="menuChange('sub')"
-                                            v-model="book.bookItems.sub.selected">
+                                        <input type="radio" name="book_sub" :value="item.subcode" @change="menuChange('sub')" v-model="book.bookItems.sub.selected">
                                     </label>
                                 </div>
                                 <label>教版：</label>
@@ -103,17 +123,19 @@
                         <keep-alive>
                             <router-view :nav="nav.active" :rtitle="rightTitle"></router-view>
                         </keep-alive>
-                        
+
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <div class="footer">
-            <p>技术支持：山东金视野教育科技股份有限公司</p>
-            <p>鲁ICP备09042772号-4</p>
-        </div>
+    </div>
+
+
+    <div class="footer">
+        <p>技术支持：山东金视野教育科技股份有限公司</p>
+        <p>鲁ICP备09042772号-4</p>
     </div>
 
     <script src="static/js/vue.min.js"></script>

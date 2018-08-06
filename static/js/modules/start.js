@@ -79,7 +79,7 @@ define(['starbar', 'recorder'], function(starbar){
                 _this.isPronouncing = false;
             }
             originAudio.onerror = function() {
-                $.ajax({
+                _this.list[_this.index].orals_id && $.ajax({
                     url: api.get_audio,
                     type: 'GET',
                     data: {id: _this.list[_this.index].orals_id},
@@ -102,7 +102,7 @@ define(['starbar', 'recorder'], function(starbar){
             }
             // 链接失效时
             recordAudio.onerror = function() {
-                $.ajax({
+                _this.list[_this.index].orals_id && $.ajax({
                     url: api.get_audio,
                     type: 'GET',
                     data: {id: _this.list[_this.index].orals_id},
@@ -352,7 +352,7 @@ define(['starbar', 'recorder'], function(starbar){
                     if(recorder.type=="h5"){
                         _this.isReady ? _this.startRecord() : _this.setRecorder(_this.startRecord);
                     }else{
-                        if(_this.isReady) {
+                        if(_this.isReady && Wami.allowMic) {
                             _this.startRecord();
                         }else if(Wami.showFlash){
                             waitReady = layer.open({

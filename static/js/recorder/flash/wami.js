@@ -151,7 +151,7 @@ Wami.setup = function (options) {
         if( _options.audioParams ){
             Wami.setSettings();
         }
-console.log("------------------");
+
         var settings = Wami.getSettings();
         // 检测是否允许 麦克风
         if (settings.microphone.granted) {
@@ -194,7 +194,7 @@ console.log("------------------");
         // This is the minimum size due to the microphone security panel
         Wami.swfobject.embedSWF(_options.swfUrl, id, 214, 137, version, null,
                 flashVars, params);
-                
+              
         // Without this line, Firefox has a dotted outline of the flash
         Wami.swfobject.createCSS("#" + id, "outline:none");
     }
@@ -213,7 +213,6 @@ console.log("------------------");
 
         var fn = Wami.nameCallback(function () {
             var swf = document.getElementById(id);
-            // console.log(swf.getSettings());
             Wami._remembered = swf.getSettings().microphone.granted;
             Wami.swfobject.removeSWF(id);
             eval(finishedfn + "()");
@@ -259,7 +258,6 @@ console.log("------------------");
             var augmentedfn = Wami.nameCallback(function () {
                 checkRemembered(finishedfn);
                 container.style.cssText = "position: absolute; top: -1000px;";
-                // console.log("setting----------");
             });
 
             container.style.cssText = "position: absolute; z-index: 99999";

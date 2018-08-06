@@ -127,20 +127,20 @@ require(['header', 'tree'], function(header, tree){
     var speakingApp = new Vue({
         el: '#speaking_app',
         data: {
-            header: {
-                logo: {
-                    url: "index.html",
-                    icon: "static/images/logo.png"
-                },
-                menu: [
-                    {url: "#", name: "首页"},
-                    {url: "#", name: "课堂资源"},
-                    {url: "#", name: "知识案例"},
-                    {url: "#", name: "实验视频"},
-                    {url: "#", name: "组卷中心"},
-                    {url: "index.html", name: "口语测评", isActive: true}
-                ]
-            },
+            // header: {
+            //     logo: {
+            //         url: "index.html",
+            //         icon: "static/images/logo.png"
+            //     },
+            //     menu: [
+            //         {url: "#", name: "首页"},
+            //         {url: "#", name: "课堂资源"},
+            //         {url: "#", name: "知识案例"},
+            //         {url: "#", name: "实验视频"},
+            //         {url: "#", name: "组卷中心"},
+            //         {url: "index.html", name: "口语测评", isActive: true}
+            //     ]
+            // },
             position: [
                 { url: "#", name: "首页"},
                 { url: "", name: "口语测评"}
@@ -170,23 +170,22 @@ require(['header', 'tree'], function(header, tree){
             'speaking-header': header,
             'vue-tree': tree
         },
-        watch: {
-            '$route': function(to, from) {
-                // console.log(to, from);
-                var tq = to.query, fq = from.query, isSameBook = false;
-                if(tq.mater==fq.mater&&tq.sub==fq.sub&&tq.fasc==fq.fasc&&tq.per==fq.per) {
-                    isSameBook = true;
-                }
-                this.setData({isSameBook: isSameBook});
+        computed: {
+            isMenu: function() {
+                return this.nav.active!=3;
             }
         },
         created: function() {
             // console.log(this.$route);
-            this.setData({isFirst: this.$route.path=="/word"});
+            var path = this.$route.path
+            this.setData({isFirst: path=="/word"||path=="/sentence"||path=="/err"});
         },
-        computed: {
-            isMenu: function() {
-                return this.nav.active!=3;
+        watch: {
+            '$route': function(to, from) {
+                var tq = to.query, fq = from.query;
+                var isSameBook = JSON.stringify(tq)!="{}"&&tq.mater==fq.mater&&tq.sub==fq.sub&&tq.fasc==fq.fasc&&tq.per==fq.per;
+                var isFirst = to.path=="/word"||to.path=="/sentence"||to.path=="/err";
+                this.setData({isSameBook: isSameBook, isFirst: isFirst});
             }
         },
         methods: {
@@ -231,7 +230,7 @@ require(['header', 'tree'], function(header, tree){
                             _this.book.bookName = isGotBook?_this.getBookName():"选择教材";
                             _this.book.isOpen = !isGotBook;
 
-                            // 首页
+                            // 默认第一页
                             if(isFirst){
                                 var auto_book = _this.getBook();
                                 var auto_book_params = {
@@ -243,7 +242,7 @@ require(['header', 'tree'], function(header, tree){
                                 sendAjax(api.get_menu, auto_book_params, 'GET', function(res){
                                     var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
                                     _this.unit.menu = tree;
-                                    _this.activeNode();
+                                    _this.activeNode("first");
                                 });
                             }
 
@@ -253,13 +252,13 @@ require(['header', 'tree'], function(header, tree){
                     // 获取目录
                     if(isGotBook) {
                         if(isSameBook&&_this.unit.menu.length){
-                            query.unit&&_this.activeNode(query.unit);
+                            _this.activeNode(query.unit);
                         }else{
                             sendAjax(api.get_menu, book_params, 'GET', function(res){
                                 var tree = JSON.parse(JSON.stringify(res.data).replace(/childList/g,"children"));
                                 _this.unit.menu = tree;
                                 _this.book.isOpen = false;
-                                query.unit&&_this.activeNode(query.unit);
+                                _this.activeNode(query.unit);
                             });
                         }
                     }else{
@@ -293,7 +292,7 @@ require(['header', 'tree'], function(header, tree){
             // 目录加载后，激活目录节点
             activeNode: function(id) {
                 var right_title = "";
-                if(id) {
+                if(id!="first") {
                     this.unit.activeId = id;
                     readTree(this.unit.menu, function(node){
                         if(node.id==id) right_title = node.name;
@@ -322,13 +321,19 @@ require(['header', 'tree'], function(header, tree){
             getMenu: function() {
                 var _this = this;
                 var cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
-                if(!_this.nav.active) {
+                var book = _this.getBook(), qy = _this.$route.query;
+                if(!_this.nav.active) 
+                {
                     msgWarning('请选择菜单!');
                     return false;
-                }else if(_this.nav.active==1||_this.nav.active==2){
-                    _this.$router.push({name: "start", params: {nav: cur_nav[0].type}, query: _this.getBook()});
-                }else if(_this.nav.active==4){
-                    _this.$router.push({name: "err", query: _this.getBook()});
+                }
+                else if(book.fasc!=qy.fasc||book.mater!=qy.mater||book.per!=qy.per||book.sub!=qy.sub) 
+                {
+                    if(_this.nav.active==1||_this.nav.active==2){
+                        _this.$router.push({name: "start", params: {nav: cur_nav[0].type}, query: book});
+                    }else if(_this.nav.active==4){
+                        _this.$router.push({name: "err", query: book});
+                    }
                 }
                 _this.book.isOpen = false;
             },

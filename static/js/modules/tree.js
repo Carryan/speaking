@@ -23,6 +23,14 @@ define(function(){
         updated: function(){
             this.openActive();
         },
+        watch: {
+            '$route': function(to, from) {
+                var tq = to.query, fq = from.query;
+                if(tq.mater!=fq.mater||tq.sub!=fq.sub||tq.fasc!=fq.fasc||tq.per!=fq.per) {
+                    this.open = false;
+                }
+            }
+        },
         computed: {
             isFolder: function () {
                 return this.model.children && this.model.children.length;
@@ -36,15 +44,15 @@ define(function(){
                 // 层层打开激活项
                 if(this.model.id==this.activeid) {
                     var p =  this.$parent;
-                    parentOpen(p);
+                    this.parentOpen(p);
                 }
-                function parentOpen(p) {
-                    if(p.model){
-                        p.open = true;
-                        return parentOpen(p.$parent);
-                    }else{
-                        return ;
-                    }
+            },
+            parentOpen: function(p) {
+                if(p.model){
+                    p.open = true;
+                    return this.parentOpen(p.$parent);
+                }else{
+                    return false;
                 }
             },
             toggle: function () {
