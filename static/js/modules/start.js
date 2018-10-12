@@ -234,14 +234,16 @@ define(['starbar', 'recorder'], function(starbar){
                     en: data.words,
                     cn: data.translations,
                     pronounce: data.translations,
-                    grade: (data.total_score==null)?false:String(Math.floor(data.total_score>5?data.total_score:data.total_score*20)),
+                    // grade: (data.total_score==null)?false:String(Math.floor(data.total_score>5?data.total_score:data.total_score*20)),
+                    grade: false,
                     star: this.isWord ? "" : {
                         accuracy: data.accuracy_score,
                         integrity: data.integrity_score,
                         fluency: data.fluency_score
                     },
                     audio_url: data.audio_url,
-                    record_url: data.record_url,
+                    // record_url: data.record_url,
+                    record_url: null,
                     content: data.content,
                     symbol: data.symbol
                 }

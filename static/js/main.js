@@ -172,7 +172,7 @@ require(['header', 'tree'], function(header, tree){
         },
         computed: {
             isMenu: function() {
-                return this.nav.active!=3;
+                return this.nav.active==1||this.nav.active==2||this.nav.active==4;
             }
         },
         created: function() {
@@ -320,7 +320,7 @@ require(['header', 'tree'], function(header, tree){
             // 选择教材，获取目录
             getMenu: function() {
                 var _this = this;
-                var cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
+                // var cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
                 var book = _this.getBook(), qy = _this.$route.query;
                 if(!_this.nav.active) 
                 {
@@ -330,7 +330,8 @@ require(['header', 'tree'], function(header, tree){
                 else if(book.fasc!=qy.fasc||book.mater!=qy.mater||book.per!=qy.per||book.sub!=qy.sub) 
                 {
                     if(_this.nav.active==1||_this.nav.active==2){
-                        _this.$router.push({name: "start", params: {nav: cur_nav[0].type}, query: book});
+                        var type = filterArray(_this.nav.navItems, "id", _this.nav.active)[0].type;
+                        _this.$router.push({name: "start", params: {nav: type}, query: book});
                     }else if(_this.nav.active==4){
                         _this.$router.push({name: "err", query: book});
                     }
@@ -343,11 +344,11 @@ require(['header', 'tree'], function(header, tree){
                 if(model.children&&model.children.length) return;
                 // 跳转路由
                 var _this = this,
-                    querys = _this.getBook(),
-                    cur_nav = filterArray(_this.nav.navItems, "id", _this.nav.active);
+                    querys = _this.getBook();
                 querys['unit'] = model.id;
                 if(_this.nav.active==1||_this.nav.active==2){
-                    this.$router.push({name: "start", params: {nav: cur_nav[0].type}, query: querys});
+                    var type = filterArray(_this.nav.navItems, "id", _this.nav.active)[0].type;
+                    this.$router.push({name: "start", params: {nav: type}, query: querys});
                 }else if(_this.nav.active==4){
                     this.$router.push({name: "err", query: querys});
                 }
